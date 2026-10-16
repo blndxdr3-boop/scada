@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سیستەمی ئۆتۆمەیشنی پڕۆژەکانی دەواجن | SCADA HMI</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-panel: #111827;
+      --bg-card: #1e293b;
+      --bg-card-hover: #26354d;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.45);
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.55);
+      --amber: #f59e0b;
+      --purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #172554 0%, var(--bg-main) 45%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Header */
+    header {
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+    }
+
+    .brand h1 {
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .brand p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .alarm-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .alarm-banner.ok {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--green);
+      color: #6ee7b7;
+    }
+
+    .alarm-banner.fault {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--red);
+      color: #fca5a5;
+      animation: pulseRed 1.4s infinite;
+    }
+
+    @keyframes pulseRed {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+      50% { box-shadow: 0 0 18px 4px rgba(239, 68, 68, 0.65); }
+    }
+
+    .btn {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--red);
+      color: #fca5a5;
+    }
+
+    .btn-success {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--green);
+      color: #6ee7b7;
+    }
+
+    main {
+      max-width: 1550px;
+      margin: 0 auto;
+      padding: 24px 18px 60px;
+    }
+
+    /* 3D Home View */
+    .home-hero {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .home-hero h2 {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+      color: #e2e8f0;
+    }
+
+    .home-hero p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .projects-3d-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 28px;
+      perspective: 1200px;
+      padding: 12px 4px;
+    }
+
+    .project-3d-card {
+      background: linear-gradient(155deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      cursor: pointer;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(8deg) rotateY(-4deg);
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s, border-color 0.35s;
+      box-shadow: -10px 14px 28px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .project-3d-card:hover {
+      transform: rotateX(0deg) rotateY(0deg) translateY(-8px) scale(1.02);
+      border-color: var(--accent);
+      box-shadow: 0 20px 38px rgba(2, 132, 199, 0.28);
+    }
+
+    .project-3d-card.has-fault {
+      border-color: var(--red);
+      box-shadow: -10px 14px 28px rgba(239, 68, 68, 0.28);
+    }
+
+    /* 3D Mini Farm Graphic inside Card */
+    .farm-3d-scene {
+      height: 135px;
+      background: radial-gradient(circle at center, #1e3a5f 0%, #0b1325 100%);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .halls-iso-wrap {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      transform: rotateX(48deg) rotateZ(-25deg);
+      transform-style: preserve-3d;
+      padding: 10px;
+    }
+
+    .hall-iso-box {
+      width: 34px;
+      height: 18px;
+      background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+      border: 1px solid #bae6fd;
+      border-radius: 2px;
+      position: relative;
+      box-shadow: -4px 5px 0 #0369a1, -6px 7px 8px rgba(0,0,0,0.65);
+      transition: 0.2s;
+    }
+
+    .hall-iso-box.fault {
+      background: linear-gradient(90deg, #dc2626, #f87171);
+      border-color: #fecaca;
+      box-shadow: -4px 5px 0 #991b1b, 0 0 12px var(--red);
+    }
+
+    .scene-badge {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .scene-status-dot {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    .led {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .led.green {
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green-glow);
+    }
+
+    .led.red {
+      background: var(--red);
+      box-shadow: 0 0 12px var(--red-glow);
+      animation: blinkFault 0.8s infinite alternate;
+    }
+
+    .led.off {
+      background: #475569;
+    }
+
+    @keyframes blinkFault {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0.35; transform: scale(1.18); }
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-title-row h3 {
+      font-size: 1.15rem;
+      color: #fff;
+    }
+
+    .project-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .metric-box {
+      background: rgba(15, 23, 42, 0.65);
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metric-box strong {
+      color: var(--text-main);
+    }
+
+    /* Project Inside Dashboard */
+    .project-header-bar {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      background: var(--bg-panel);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    }
+
+    /* Hall Selector Bar */
+    .hall-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .hall-pill {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.88rem;
+      transition: 0.2s;
+    }
+
+    .hall-pill.active {
+      background: #1e3a8a;
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .hall-pill.fault {
+      border-color: var(--red);
+      background: rgba(239, 68, 68, 0.14);
+    }
+
+    /* Hall Info & Environmental Sensors */
+    .hall-overview-banner {
+      background: linear-gradient(90deg, #0f172a, #1e293b);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .sensors-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .sensor-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sensor-card.alarm-active {
+      border-color: var(--red);
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    .sensor-val {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 4px 0;
+    }
+
+    /* Equipment Sections Grid */
+    .equipment-section {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .section-head h4 {
+      font-size: 1.05rem;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .devices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 12px;
+    }
+
+    .device-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: 0.2s;
+    }
+
+    .device-box.fault {
+      border-color: var(--red);
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .device-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    .device-status-text {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .device-controls {
+      display: flex;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .toggle-btn {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .toggle-btn.on {
+      background: var(--green);
+      color: #052e16;
+    }
+
+    .toggle-btn.off {
+      background: #334155;
+      color: #cbd5e1;
+    }
+
+    .fault-sim-btn {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      cursor: pointer;
+    }
+
+    .fault-sim-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .fault-sim-btn.fix {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    /* Silos Grid */
+    .silos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .silo-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .silo-tank {
+      width: 74px;
+      height: 130px;
+      margin: 12px auto;
+      background: #0f172a;
+      border: 2px solid #64748b;
+      border-radius: 12px 12px 28px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .silo-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, #f59e0b, #d97706);
+      transition: height 0.4s ease;
+    }
+
+    .silo-percent {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #fff;
+      text-shadow: 0 1px 4px #000;
+    }
+
+    /* Staff Table */
+    .staff-summary-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: right;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.88rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .role-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .att-btn {
+      padding: 5px 11px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .att-btn.present.active {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: var(--green);
+      color: #6ee7b7;
+    }
+
+    .att-btn.absent.active {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--red);
+      color: #fca5a5;
+    }
+
+    .att-btn.leave.active {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: var(--amber);
+      color: #fde68a;
+    }
+
+    /* Modal for Edit Staff & Faults List */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 520px;
+      width: 100%;
+      padding: 22px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: #fff;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 12px 14px; }
+      .project-3d-card { transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⚙️</div>
+      <div>
+        <h1>سیستەمی ئۆتۆمەیشنی کێڵگەکانی پەلەوەر (SCADA)</h1>
+        <p>کۆنتڕۆڵی مەرکەزی 8 پڕۆژەی دەواجن • 80 هۆڵ • چاودێری ڕاستەوخۆ</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div id="globalAlarmBanner" class="alarm-banner ok" onclick="openFaultsModal()">
+        <span class="led green" id="globalAlarmLed"></span>
+        <span id="globalAlarmText">هەموو ئامێرەکان بێ کێشەن (0 کێشە)</span>
+      </div>
+      <button class="btn" onclick="simulateRandomFault()">⚡ تاقیکردنەوەی ئەلارم</button>
+      <button class="btn btn-primary" id="backHomeBtn" style="display:none;" onclick="goHome()">🏠 گەڕانەوە بۆ هۆم (3D)</button>
+    </div>
+  </header>
+
+  <main id="appContainer"></main>
+
+  <!-- Edit Staff Modal -->
+  <div class="modal-backdrop" id="editStaffModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 14px;">✏️ دەستکاریکردنی زانیاری کارمەند (تعدیل)</h3>
+      <input type="hidden" id="editStaffId" />
+      <div class="form-group">
+        <label>ناوی سیانی کارمەند:</label>
+        <input type="text" id="editStaffName" placeholder="ناوی کارمەند بنووسە..." />
+      </div>
+      <div class="form-group">
+        <label>پلە / پیشە:</label>
+        <input type="text" id="editStaffRole" disabled />
+      </div>
+      <div class="form-group">
+        <label>ژمارەی مۆبایل یان تێبینی:</label>
+        <input type="text" id="editStaffPhone" placeholder="0750xxxxxxx" />
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+        <button class="btn" onclick="closeStaffModal()">پاشگەزبوونەوە</button>
+        <button class="btn btn-primary" onclick="saveStaffEdit()">پاشەکەوتکردن</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Faults Modal -->
+  <div class="modal-backdrop" id="faultsModal">
+    <div class="modal-box" style="max-width: 680px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3>🚨 لیستی ئاگادارکردنەوە و کێشەکانی سیستەم</h3>
+        <button class="btn btn-success" onclick="fixAllFaults()">چاککردنەوەی هەموو کێشەکان</button>
+      </div>
+      <div id="faultsListContainer"></div>
+      <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+        <button class="btn" onclick="closeFaultsModal()">داخستن</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'POULTRY_SCADA_V1';
+
+    const KURDISH_FIRST_NAMES = [
+      'کاروان', 'بەرهەم', 'سۆران', 'ئارام', 'دیار', 'هەڵۆ', 'ڕێبین', 'شوان',
+      'پشتیوان', 'زانا', 'هێمن', 'ئومێد', 'شاهین', 'بەختیار', 'کاردۆ', 'سەنگەر',
+      'نەبەز', 'ڕزگار', 'هاوکار', 'دلێر', 'کامەران', 'گۆران', 'سامان', 'یاسین', 'فەرهاد'
+    ];
+    const KURDISH_LAST_NAMES = [
+      'ئەحمەد', 'محەمەد', 'عەلی', 'حەسەن', 'ئیبراهیم', 'مەحموود', 'عوسمان', 'قادر',
+      'کەریم', 'سەعید', 'مستەفا', 'عەبدوڵڵا', 'ڕەسووڵ', 'حەمەد', 'صاڵح'
+    ];
+
+    function generateStaffForProject(pIndex) {
+      const roles = [
+        { role: 'ئەندازیاری ئۆتۆمەیشن', code: 'ENG' },
+        { role: 'دکتۆری تایبەتمەندی پەلەوەر', code: 'VET' },
+        { role: 'سەرپەرشتیاری کرێکارەکان', code: 'SUP' },
+        { role: 'وەستای کارەبا', code: 'ELEC' },
+        { role: 'کرێکاری میکانیک', code: 'MECH' },
+        { role: 'پاسەوانی دەرگا', code: 'SEC' },
+        { role: 'چێشتلێنەر', code: 'COOK' }
+      ];
+      for (let w = 1; w <= 18; w++) {
+        roles.push({ role: `کرێکاری هۆڵ (${w})`, code: `WRK-${w}` });
+      }
+
+      return roles.map((r, idx) => {
+        const fn = KURDISH_FIRST_NAMES[(idx + pIndex * 3) % KURDISH_FIRST_NAMES.length];
+        const ln = KURDISH_LAST_NAMES[(idx * 2 + pIndex) % KURDISH_LAST_NAMES.length];
+        return {
+          id: `P${pIndex}_S${idx + 1}`,
+          name: `${fn} ${ln}`,
+          role: r.role,
+          phone: `0750 ${100 + pIndex}${200 + idx}`,
+          status: 'present' // present | absent | leave
+        };
+      });
+    }
+
+    function createDevicesList(prefix, label, count, defaultOn = true) {
+      const list = [];
+      for (let i = 1; i <= count; i++) {
+        list.push({
+          id: `${prefix}_${i}`,
+          name: `${label} ژمارە ${i}`,
+          on: defaultOn,
+          fault: false
+        });
+      }
+      return list;
+    }
+
+    function createHall(pIdx, hIdx) {
+      return {
+        id: hIdx,
+        name: `هۆڵی ژمارە ${hIdx}`,
+        dimensions: '80m × 20m',
+        temp: +(24.5 + (hIdx % 3) * 0.4).toFixed(1),
+        n2_ppm: 12 + (hIdx % 5),
+        co2_ppm: 1850 + (hIdx * 35),
+        alarms: {
+          tempColdHeat: false,
+          n2: false,
+          co2: false
+        },
+        silo: {
+          capacityTons: 25,
+          currentTons: +(16.5 - (hIdx % 6) * 1.8).toFixed(1),
+          augerOn: true,
+          fault: false
+        },
+        exhaustFans: createDevicesList(`P${pIdx}H${hIdx}_EXF`, 'ساحیبە', 14, true),
+        heaters: createDevicesList(`P${pIdx}H${hIdx}_HTR`, 'هیتەر', 6, false),
+        coolingMotors: createDevicesList(`P${pIdx}H${hIdx}_CLM`, 'ماتۆڕی شەلال', 4, true),
+        tunnelFans: [
+          { id: `P${pIdx}H${hIdx}_TNF_1`, name: 'ساحیبەی تونێلی (ساردی)', on: true, fault: false },
+          { id: `P${pIdx}H${hIdx}_TNF_2`, name: 'ساحیبەی تونێلی (گەرمی)', on: false, fault: false }
+        ],
+        ventWindows: [
+          { id: `P${pIdx}H${hIdx}_VNT_R`, name: 'پەنجەرەی تەهویەی لای ڕاست (80m)', on: true, openPercent: 65, fault: false },
+          { id: `P${pIdx}H${hIdx}_VNT_L`, name: 'پەنجەرەی تەهویەی لای چەپ (80m)', on: true, openPercent: 65, fault: false }
+        ],
+        feedLines: createDevicesList(`P${pIdx}H${hIdx}_FDL`, 'هێڵی دانخۆری', 6, true),
+        lightLines: createDevicesList(`P${pIdx}H${hIdx}_LGT`, 'هێڵی ڕووناکی ناوەوە', 6, true),
+        elecPanels: [
+          { id: `P${pIdx}H${hIdx}_PNL_1`, name: 'لوحەی کارەبای مەرکەزی (A - سەرەکی)', on: true, voltage: '398V', loadAmp: '64A', fault: false },
+          { id: `P${pIdx}H${hIdx}_PNL_2`, name: 'لوحەی کارەبای مەرکەزی (B - یەدەگ/کۆنتڕۆڵ)', on: true, voltage: '400V', loadAmp: '48A', fault: false }
+        ]
+      };
+    }
+
+    function buildInitialData() {
+      const projects = [];
+      for (let p = 1; p <= 8; p++) {
+        const halls = [];
+        for (let h = 1; h <= 10; h++) {
+          halls.push(createHall(p, h));
+        }
+        projects.push({
+          id: p,
+          name: `پڕۆژەی دەواجنی ژمارە (${p})`,
+          location: `کەرتی پیشەسازی پەلەوەر - زۆنی ${p}`,
+          sanitationShower: {
+            id: `P${p}_SHOWER`,
+            name: 'حەمامی تەعقیمی سەرەکی (چوونەژوورەوە)',
+            on: true,
+            disinfectantLevel: 88,
+            todayEntries: 24,
+            fault: false
+          },
+          generators: [
+            {
+              id: `P${p}_GEN_1`,
+              name: 'مۆلیدەی سەرەکی ژمارە (1) - 500 kVA',
+              on: true,
+              mode: 'Active Load',
+              voltage: '400V',
+              freq: '50.0 Hz',
+              fuelPercent: 82,
+              hours: 1420 + p * 15,
+              fault: false
+            },
+            {
+              id: `P${p}_GEN_2`,
+              name: 'مۆلیدەی یەدەگ ژمارە (2) - 500 kVA',
+              on: false,
+              mode: 'Standby Auto',
+              voltage: '0V',
+              freq: '0.0 Hz',
+              fuelPercent: 94,
+              hours: 860 + p * 10,
+              fault: false
+            }
+          ],
+          halls,
+          staff: generateStaffForProject(p)
+        });
+      }
+      // Inject 1 sample fault in Project 1 Hall 1 Exhaust Fan 3 so the user immediately sees how alerts look
+      projects[0].halls[0].exhaustFans[2].fault = true;
+      projects[0].halls[0].exhaustFans[2].on = false;
+      return projects;
+    }
+
+    let state = {
+      view: 'home', // 'home' | 'project'
+      selectedProjectId: 1,
+      activeTab: 'halls', // 'halls' | 'generators' | 'silos' | 'staff'
+      selectedHallId: 1,
+      projects: []
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          state.projects = JSON.parse(saved);
+        } else {
+          state.projects = buildInitialData();
+          saveState();
+        }
+      } catch (e) {
+        state.projects = buildInitialData();
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
+      } catch (e) {}
+    }
+
+    // Collect all active faults across all 8 projects
+    function getAllFaults() {
+      const faults = [];
+      state.projects.forEach(p => {
+        if (p.sanitationShower.fault) {
+          faults.push({ pId: p.id, pName: p.name, location: 'دەرگای سەرەکی', item: p.sanitationShower.name, ref: p.sanitationShower });
+        }
+        p.generators.forEach(g => {
+          if (g.fault) {
+            faults.push({ pId: p.id, pName: p.name, location: 'بەشی مۆلیدەکان', item: g.name, ref: g });
+          }
+        });
+        p.halls.forEach(h => {
+          if (h.alarms.tempColdHeat) {
+            faults.push({ pId: p.id, pName: p.name, hId: h.id, location: h.name, item: 'ئەلارمی ساردی و گەرمی ناو هۆڵ', alarmKey: 'tempColdHeat', hallRef: h });
+          }
+          if (h.alarms.n2) {
+            faults.push({ pId: p.id, pName: p.name, hId: h.id, location: h.name, item: 'ئەلارمی بەرزی نایترۆجین / ئەمۆنیا (N2)', alarmKey: 'n2', hallRef: h });
+          }
+          if (h.alarms.co2) {
+            faults.push({ pId: p.id, pName: p.name, hId: h.id, location: h.name, item: 'ئەلارمی بەرزی گازی CO2', alarmKey: 'co2', hallRef: h });
+          }
+          if (h.silo.fault) {
+            faults.push({ pId: p.id, pName: p.name, hId: h.id, location: h.name, item: `سایلۆی عەلەفی ${h.name}`, ref: h.silo });
+          }
+          const groups = [
+            h.exhaustFans, h.heaters, h.coolingMotors, h.tunnelFans,
+            h.ventWindows, h.feedLines, h.lightLines, h.elecPanels
+          ];
+          groups.forEach(grp => {
+            grp.forEach(dev => {
+              if (dev.fault) {
+                faults.push({ pId: p.id, pName: p.name, hId: h.id, location: h.name, item: dev.name, ref: dev });
+              }
+            });
+          });
+        });
+      });
+      return faults;
+    }
+
+    function countProjectFaults(project) {
+      let c = 0;
+      if (project.sanitationShower.fault) c++;
+      project.generators.forEach(g => { if (g.fault) c++; });
+      project.halls.forEach(h => {
+        c += countHallFaults(h);
+      });
+      return c;
+    }
+
+    function countHallFaults(h) {
+      let c = 0;
+      if (h.alarms.tempColdHeat) c++;
+      if (h.alarms.n2) c++;
+      if (h.alarms.co2) c++;
+      if (h.silo.fault) c++;
+      [
+        h.exhaustFans, h.heaters, h.coolingMotors, h.tunnelFans,
+        h.ventWindows, h.feedLines, h.lightLines, h.elecPanels
+      ].forEach(grp => grp.forEach(d => { if (d.fault) c++; }));
+      return c;
+    }
+
+    function updateGlobalHeader() {
+      const faults = getAllFaults();
+      const banner = document.getElementById('globalAlarmBanner');
+      const led = document.getElementById('globalAlarmLed');
+      const text = document.getElementById('globalAlarmText');
+      const backBtn = document.getElementById('backHomeBtn');
+
+      backBtn.style.display = state.view === 'project' ? 'inline-flex' : 'none';
+
+      if (faults.length === 0) {
+        banner.className = 'alarm-banner ok';
+        led.className = 'led green';
+        text.textContent = 'هەموو ئامێرەکان بێ کێشەن (گڵۆپی سەوز چالاکە)';
+      } else {
+        banner.className = 'alarm-banner fault';
+        led.className = 'led red';
+        text.textContent = `ئاگادارکردنەوە: ${faults.length} کێشە لە ئامێرەکاندا هەیە! (کلیک بکە)`;
+      }
+    }
+
+    // Navigation functions
+    function goHome() {
+      state.view = 'home';
+      render();
+    }
+
+    function openProject(projectId, tab = 'halls', hallId = 1) {
+      state.view = 'project';
+      state.selectedProjectId = projectId;
+      state.activeTab = tab;
+      state.selectedHallId = hallId;
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setProjectTab(tab) {
+      state.activeTab = tab;
+      render();
+    }
+
+    function selectHall(hallId) {
+      state.selectedHallId = hallId;
+      render();
+    }
+
+    // Render Dispatcher
+    function render() {
+      updateGlobalHeader();
+      const container = document.getElementById('appContainer');
+      if (state.view === 'home') {
+        container.innerHTML = renderHome3D();
+      } else {
+        container.innerHTML = renderProjectDashboard();
+      }
+    }
+
+    function renderHome3D() {
+      const cardsHtml = state.projects.map(p => {
+        const faultCount = countProjectFaults(p);
+        const presentStaff = p.staff.filter(s => s.status === 'present').length;
+        const totalFeedTons = p.halls.reduce((acc, h) => acc + h.silo.currentTons, 0).toFixed(1);
+        const activeGens = p.generators.filter(g => g.on && !g.fault).length;
+
+        const miniHalls = p.halls.map(h => {
+          const hf = countHallFaults(h);
+          return `<div class="hall-iso-box ${hf > 0 ? 'fault' : ''}" title="${h.name}"></div>`;
+        }).join('');
+
+        return `
+          <div class="project-3d-card ${faultCount > 0 ? 'has-fault' : ''}" onclick="openProject(${p.id})">
+            <div class="farm-3d-scene">
+              <span class="scene-badge">10 هۆڵ • 80×20m</span>
+              <span class="led ${faultCount > 0 ? 'red' : 'green'} scene-status-dot"></span>
+              <div class="halls-iso-wrap">
+                ${miniHalls}
+              </div>
+            </div>
+
+            <div class="card-title-row">
+              <h3>${p.name}</h3>
+              <span class="led ${faultCount > 0 ? 'red' : 'green'}"></span>
+            </div>
+
+            <div class="project-metrics">
+              <div class="metric-box">
+                <span>دۆخی ئامێرەکان:</span>
+                <strong style="color:${faultCount > 0 ? '#fca5a5' : '#6ee7b7'}">
+                  ${faultCount > 0 ? `${faultCount} کێشە هەیە` : 'بێ کێشە (سەوز)'}
+                </strong>
+              </div>
+              <div class="metric-box">
+                <span>ستافی ئامادەبوو:</span>
+                <strong>${presentStaff} / ${p.staff.length}</strong>
+              </div>
+              <div class="metric-box">
+                <span>مۆلیدەی کارا:</span>
+                <strong>${activeGens} / 2 مۆلیدە</strong>
+              </div>
+              <div class="metric-box">
+                <span>کۆی عەلەفی سایلۆکان:</span>
+                <strong>${totalFeedTons} تەن</strong>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%; justify-content:center;">
+              چوونەژوورەوە بۆ ناو پڕۆژە ⬅️
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="home-hero">
+          <h2>پانێڵی سێ-ڕەهەندی (3D) پڕۆژەکانی دەواجن</h2>
+          <p>کلیک لەسەر هەر یەکێک لە 8 پڕۆژەکە بکە بۆ کردنەوەی هەر 10 هۆڵەکە، کۆنتڕۆڵی ئامێرەکان، سایلۆکان، مۆلیدەکان و غیاباتی ستاف</p>
+        </div>
+        <div class="projects-3d-grid">
+          ${cardsHtml}
+        </div>
+      `;
+    }
+
+    function renderProjectDashboard() {
+      const project = state.projects.find(p => p.id === state.selectedProjectId);
+      const faultCount = countProjectFaults(project);
+
+      let tabContent = '';
+      if (state.activeTab === 'halls') {
+        tabContent = renderHallsTab(project);
+      } else if (state.activeTab === 'generators') {
+        tabContent = renderGeneratorsAndShowerTab(project);
+      } else if (state.activeTab === 'silos') {
+        tabContent = renderSilosTab(project);
+      } else if (state.activeTab === 'staff') {
+        tabContent = renderStaffTab(project);
+      }
+
+      return `
+        <div class="project-header-bar">
+          <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="led ${faultCount > 0 ? 'red' : 'green'}"></span>
+              <h2 style="font-size:1.35rem;">${project.name}</h2>
+            </div>
+            <p style="color:var(--text-muted); font-size:0.86rem; margin-top:4px;">
+              10 هۆڵی ستاندارد (80m × 20m) • 2 مۆلیدە • حەمامی تەعقیم • 25 کارمەند و ستافی تایبەت
+            </p>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            ${state.projects.map(p => `
+              <button class="btn ${p.id === project.id ? 'btn-primary' : ''}" onclick="openProject(${p.id}, '${state.activeTab}', 1)">
+                پڕۆژەی ${p.id}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="nav-tabs">
+          <button class="tab-btn ${state.activeTab === 'halls' ? 'active' : ''}" onclick="setProjectTab('halls')">
+            🏭 کۆنتڕۆڵی 10 هۆڵەکە و ئامێرەکان
+          </button>
+          <button class="tab-btn ${state.activeTab === 'generators' ? 'active' : ''}" onclick="setProjectTab('generators')">
+            ⚡ مۆلیدەکان (2) و حەمامی تەعقیم (1)
+          </button>
+          <button class="tab-btn ${state.activeTab === 'silos' ? 'active' : ''}" onclick="setProjectTab('silos')">
+            🌾 سایلۆی عەلەفی هۆڵەکان (10 سایلۆ)
+          </button>
+          <button class="tab-btn ${state.activeTab === 'staff' ? 'active' : ''}" onclick="setProjectTab('staff')">
+            👥 غیابات و حضوری ستاف (${project.staff.length} کەس)
+          </button>
+        </div>
+
+        ${tabContent}
+      `;
+    }
+
+    function renderHallsTab(project) {
+      const hall = project.halls.find(h => h.id === state.selectedHallId) || project.halls[0];
+
+      const hallSelectorHtml = project.halls.map(h => {
+        const hf = countHallFaults(h);
+        return `
+          <div class="hall-pill ${h.id === hall.id ? 'active' : ''} ${hf > 0 ? 'fault' : ''}" onclick="selectHall(${h.id})">
+            <span>${h.name}</span>
+            <span class="led ${hf > 0 ? 'red' : 'green'}"></span>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="hall-selector">
+          ${hallSelectorHtml}
+        </div>
+
+        <div class="hall-overview-banner">
+          <div>
+            <h3 style="font-size:1.2rem;">🎛️ ناوەندی کۆنتڕۆڵی ${hall.name} (ڕووبەر: ${hall.dimensions})</h3>
+            <p style="color:var(--text-muted); font-size:0.84rem;">
+              14 ساحیبە • 6 هیتەر • 4 ماتۆڕی شەلال • 2 ساحیبەی تونێل • پەنجەرەی ڕاست و چەپ • 6 هێڵی دانخۆری • 6 هێڵی ڕووناکی • 2 لوحەی کارەبا
+            </p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-success" onclick="turnAllHallDevices(${project.id}, ${hall.id}, true)">ئیشپێکردنی هەمووی (ON)</button>
+            <button class="btn" onclick="turnAllHallDevices(${project.id}, ${hall.id}, false)">کوژاندنەوەی هەمووی (OFF)</button>
+          </div>
+        </div>
+
+        <!-- Alarms & Environmental Sensors -->
+        <div class="sensors-strip">
+          <div class="sensor-card ${hall.alarms.tempColdHeat ? 'alarm-active' : ''}">
+            <div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">ئەلارمی ساردی و گەرمی</div>
+              <div class="sensor-val">${hall.temp}°C</div>
+              <div style="font-size:0.76rem; color:${hall.alarms.tempColdHeat ? '#fca5a5' : '#6ee7b7'}">
+                ${hall.alarms.tempColdHeat ? '⚠️ کێشەی پلەی گەرمی هەیە!' : 'پلەی گەرمی ئاساییە'}
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+              <span class="led ${hall.alarms.tempColdHeat ? 'red' : 'green'}"></span>
+              <button class="fault-sim-btn ${hall.alarms.tempColdHeat ? 'fix' : ''}" onclick="toggleHallAlarm(${project.id}, ${hall.id}, 'tempColdHeat')">
+                ${hall.alarms.tempColdHeat ? 'چاککردن' : 'تاقیکردنەوەی ئەلارم'}
+              </button>
+            </div>
+          </div>
+
+          <div class="sensor-card ${hall.alarms.n2 ? 'alarm-active' : ''}">
+            <div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">ئەلارمی نایترۆجین / ئەمۆنیا (N2)</div>
+              <div class="sensor-val">${hall.n2_ppm} PPM</div>
+              <div style="font-size:0.76rem; color:${hall.alarms.n2 ? '#fca5a5' : '#6ee7b7'}">
+                ${hall.alarms.n2 ? '⚠️ ڕێژەی نایترۆجین بەرزە!' : 'ڕێژەی گاز ئاساییە'}
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+              <span class="led ${hall.alarms.n2 ? 'red' : 'green'}"></span>
+              <button class="fault-sim-btn ${hall.alarms.n2 ? 'fix' : ''}" onclick="toggleHallAlarm(${project.id}, ${hall.id}, 'n2')">
+                ${hall.alarms.n2 ? 'چاککردن' : 'تاقیکردنەوەی ئەلارم'}
+              </button>
+            </div>
+          </div>
+
+          <div class="sensor-card ${hall.alarms.co2 ? 'alarm-active' : ''}">
+            <div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">ئەلارمی گازی دووانەئۆکسید (CO2)</div>
+              <div class="sensor-val">${hall.co2_ppm} PPM</div>
+              <div style="font-size:0.76rem; color:${hall.alarms.co2 ? '#fca5a5' : '#6ee7b7'}">
+                ${hall.alarms.co2 ? '⚠️ ڕێژەی CO2 مەترسیدارە!' : 'هەواگۆڕکێ جێگیرە'}
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+              <span class="led ${hall.alarms.co2 ? 'red' : 'green'}"></span>
+              <button class="fault-sim-btn ${hall.alarms.co2 ? 'fix' : ''}" onclick="toggleHallAlarm(${project.id}, ${hall.id}, 'co2')">
+                ${hall.alarms.co2 ? 'چاککردن' : 'تاقیکردنەوەی ئەلارم'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        ${renderDeviceGroupSection(project.id, hall.id, 'elecPanels', '⚡ لوحەی کارەبای مەرکەزی هۆڵ (2 لوحە)', hall.elecPanels)}
+        ${renderDeviceGroupSection(project.id, hall.id, 'exhaustFans', '🌀 ساحیبەکانی هەواگۆڕکێ (14 ساحیبە)', hall.exhaustFans)}
+        ${renderDeviceGroupSection(project.id, hall.id, 'tunnelFans', '🌬️ ساحیبەی تونێلی ساردی و گەرمی (2 ساحیبە)', hall.tunnelFans)}
+        ${renderDeviceGroupSection(project.id, hall.id, 'heaters', '🔥 هیتەرەکانی گەرمکەرەوە (6 هیتەر)', hall.heaters)}
+        ${renderDeviceGroupSection(project.id, hall.id, 'coolingMotors', '💧 ماتۆڕی شەلال و ساردکەرەوە (4 ماتۆڕ)', hall.coolingMotors)}
+        ${renderDeviceGroupSection(project.id, hall.id, 'ventWindows', '🪟 پەنجەرەی تەهویەی ڕاست و چەپ (2 هێڵ)', hall.ventWindows)}
+        ${renderDeviceGroupSection(project.id, hall.id, 'feedLines', '🌾 هێڵەکانی دانخۆری ئۆتۆماتیکی (6 هێڵ)', hall.feedLines)}
+        ${renderDeviceGroupSection(project.id, hall.id, 'lightLines', '💡 هێڵەکانی ڕووناکی ناوەوەی هۆڵ (6 هێڵ)', hall.lightLines)}
+      `;
+    }
+
+    function renderDeviceGroupSection(pId, hId, groupKey, title, devices) {
+      const cards = devices.map(d => {
+        const statusLabel = d.fault
+          ? '⚠️ کێشە لە ئامێرەکەدا هەیە (Fault)'
+          : (d.on ? '✅ لە کاردایە (ON) - بێ کێشە' : '⏸️ کوژاوەتەوە (Standby) - بێ کێشە');
+
+        const extraMeta = d.voltage
+          ? `<div style="font-size:0.75rem; color:var(--accent);">ڤۆڵتیە: ${d.voltage} | بار: ${d.loadAmp}</div>`
+          : (d.openPercent !== undefined ? `<div style="font-size:0.75rem; color:var(--accent);">ڕێژەی کرانەوە: ${d.on ? d.openPercent : 0}%</div>` : '');
+
+        return `
+          <div class="device-box ${d.fault ? 'fault' : ''}">
+            <div class="device-top">
+              <span>${d.name}</span>
+              <span class="led ${d.fault ? 'red' : 'green'}" title="${d.fault ? 'کێشەی هەیە' : 'تەندروستە'}"></span>
+            </div>
+            <div class="device-status-text">${statusLabel}</div>
+            ${extraMeta}
+            <div class="device-controls">
+              <button class="toggle-btn ${d.on ? 'on' : 'off'}" onclick="toggleDevice(${pId}, ${hId}, '${groupKey}', '${d.id}')">
+                ${d.on ? 'ئیشپێکراو (ON)' : 'ئیشپێکردن (OFF)'}
+              </button>
+              <button class="fault-sim-btn ${d.fault ? 'fix' : ''}" onclick="toggleDeviceFault(${pId}, ${hId}, '${groupKey}', '${d.id}')">
+                ${d.fault ? 'چاککردن' : 'کێشە'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="equipment-section">
+          <div class="section-head">
+            <h4>${title}</h4>
+            <span style="font-size:0.8rem; color:var(--text-muted);">
+              گڵۆپی سەوز = بێ کێشە | گڵۆپی سوور = کێشە لە ئامێر
+            </span>
+          </div>
+          <div class="devices-grid">
+            ${cards}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGeneratorsAndShowerTab(project) {
+      const sh = project.sanitationShower;
+      const gensHtml = project.generators.map((g, idx) => `
+        <div class="equipment-section" style="margin-bottom:0;">
+          <div class="section-head">
+            <h4>⚡ ${g.name}</h4>
+            <span class="led ${g.fault ? 'red' : 'green'}"></span>
+          </div>
+          <div class="project-metrics" style="margin-bottom:14px;">
+            <div class="metric-box"><span>دۆخی کارکردن:</span><strong>${g.fault ? 'کێشەی هونەری (Fault)' : (g.on ? 'لە کاردایە (ON)' : 'ئامادەباش (OFF)')}</strong></div>
+            <div class="metric-box"><span>ڤۆڵتیە و فرێکوێنسی:</span><strong>${g.on ? g.voltage + ' / ' + g.freq : '0V / 0Hz'}</strong></div>
+            <div class="metric-box"><span>بڕی گازوایل:</span><strong>${g.fuelPercent}%</strong></div>
+            <div class="metric-box"><span>کاتژمێری کارکردن:</span><strong>${g.hours} کاتژمێر</strong></div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="toggle-btn ${g.on ? 'on' : 'off'}" style="padding:10px;" onclick="toggleGenerator(${project.id}, ${idx})">
+              ${g.on ? 'کوژاندنەوەی مۆلیدە (ON)' : 'ئیشپێکردنی مۆلیدە (OFF)'}
+            </button>
+            <button class="fault-sim-btn ${g.fault ? 'fix' : ''}" onclick="toggleGeneratorFault(${project.id}, ${idx})">
+              ${g.fault ? 'چاککردنەوەی کێشە' : 'تاقیکردنەوەی کێشە'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      return `
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:18px; margin-bottom:20px;">
+          ${gensHtml}
+        </div>
+
+        <div class="equipment-section">
+          <div class="section-head">
+            <h4>🚿 ${sh.name} (تایبەت بە هاتنەژوورەوەی ستاف و میوان)</h4>
+            <span class="led ${sh.fault ? 'red' : 'green'}"></span>
+          </div>
+          <div class="project-metrics">
+            <div class="metric-box"><span>دۆخی پەمپ و مەرحەلەی تەعقیم:</span><strong>${sh.fault ? 'کێشەی هەیە' : (sh.on ? 'ئامادە و چالاکە (ON)' : 'ڕاگیراوە (OFF)')}</strong></div>
+            <div class="metric-box"><span>ڕێژەی ماددەی تەعقیم:</span><strong>${sh.disinfectantLevel}%</strong></div>
+            <div class="metric-box"><span>ژمارەی تەعقیمکراوی ئەمڕۆ:</span><strong>${sh.todayEntries} کەس</strong></div>
+            <div class="metric-box"><span>ئەلارمی دەرگا:</span><strong>پەیوەستە بە قوفڵی زیرەک</strong></div>
+          </div>
+          <div style="display:flex; gap:10px; max-width:420px;">
+            <button class="toggle-btn ${sh.on ? 'on' : 'off'}" style="padding:10px;" onclick="toggleShower(${project.id})">
+              ${sh.on ? 'حەمامی تەعقیم لە کاردایە (ON)' : 'ئیشپێکردنی حەمامی تەعقیم (OFF)'}
+            </button>
+            <button class="fault-sim-btn ${sh.fault ? 'fix' : ''}" onclick="toggleShowerFault(${project.id})">
+              ${sh.fault ? 'چاککردنەوەی کێشە' : 'تاقیکردنەوەی کێشە'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSilosTab(project) {
+      const cards = project.halls.map(h => {
+        const s = h.silo;
+        const pct = Math.round((s.currentTons / s.capacityTons) * 100);
+        return `
+          <div class="silo-card" style="border-color:${s.fault ? 'var(--red)' : 'var(--border)'}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>سایلۆی ${h.name}</strong>
+              <span class="led ${s.fault ? 'red' : 'green'}"></span>
+            </div>
+            <div class="silo-tank">
+              <div class="silo-fill" style="height:${pct}%; background:${pct < 25 ? '#ef4444' : 'linear-gradient(180deg, #f59e0b, #d97706)'}"></div>
+              <div class="silo-percent">${pct}%</div>
+            </div>
+            <div style="font-size:0.9rem; margin-bottom:10px;">
+              بڕی ماوە: <strong>${s.currentTons} تەن</strong> لە ${s.capacityTons} تەن
+            </div>
+            <div style="display:flex; gap:6px; flex-direction:column;">
+              <button class="toggle-btn ${s.augerOn ? 'on' : 'off'}" onclick="toggleSiloAuger(${project.id}, ${h.id})">
+                ماتۆڕی ڕاکێشانی عەلەف: ${s.augerOn ? 'ON' : 'OFF'}
+              </button>
+              <div style="display:flex; gap:6px;">
+                <button class="btn" style="flex:1; justify-content:center; font-size:0.76rem;" onclick="refillSilo(${project.id}, ${h.id})">
+                  ➕ پڕکردنەوە (25 تەن)
+                </button>
+                <button class="fault-sim-btn ${s.fault ? 'fix' : ''}" onclick="toggleSiloFault(${project.id}, ${h.id})">
+                  ${s.fault ? 'چاککردن' : 'کێشە'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="equipment-section">
+          <div class="section-head">
+            <h4>🌾 چاودێری و کۆنتڕۆڵی سایلۆی عەلەفی هەر 10 هۆڵەکە</h4>
+            <button class="btn btn-primary" onclick="refillAllSilos(${project.id})">➕ پڕکردنەوەی هەموو سایلۆکان پێکەوە</button>
+          </div>
+          <div class="silos-grid">
+            ${cards}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStaffTab(project) {
+      const presentCount = project.staff.filter(s => s.status === 'present').length;
+      const absentCount = project.staff.filter(s => s.status === 'absent').length;
+      const leaveCount = project.staff.filter(s => s.status === 'leave').length;
+
+      const rows = project.staff.map((s, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td><strong>${s.name}</strong></td>
+          <td><span class="role-badge">${s.role}</span></td>
+          <td style="direction:ltr; text-align:right;">${s.phone}</td>
+          <td>
+            <button class="att-btn present ${s.status === 'present' ? 'active' : ''}" onclick="setAttendance(${project.id}, '${s.id}', 'present')">✅ ئامادە (حاضر)</button>
+            <button class="att-btn absent ${s.status === 'absent' ? 'active' : ''}" onclick="setAttendance(${project.id}, '${s.id}', 'absent')">❌ نەهاتوو (غائب)</button>
+            <button class="att-btn leave ${s.status === 'leave' ? 'active' : ''}" onclick="setAttendance(${project.id}, '${s.id}', 'leave')">🕒 مۆڵەت</button>
+          </td>
+          <td>
+            <button class="btn" onclick="openEditStaffModal(${project.id}, '${s.id}')">✏️ تعدیل (گۆڕینی ناو)</button>
+          </td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="staff-summary-bar">
+          <div class="btn btn-success">✅ ئامادەبووان (حضور): ${presentCount} کەس</div>
+          <div class="btn btn-danger">❌ نەهاتووان (غیاب): ${absentCount} کەس</div>
+          <div class="btn">🕒 مۆڵەت: ${leaveCount} کەس</div>
+          <button class="btn btn-primary" style="margin-right:auto;" onclick="markAllStaffPresent(${project.id})">
+            دیاریکردنی هەمووان وەک ئامادەبوو (حاضر)
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ناوی تەواو</th>
+                <th>پیشە / بەرپرسیارێتی</th>
+                <th>ژمارە مۆبایل / تێبینی</th>
+                <th>تۆماری حضور و غیابات</th>
+                <th>دەستکاریکردن (تعدیل)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Actions & State Mutators
+    function toggleDevice(pId, hId, groupKey, devId) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      const dev = h[groupKey].find(x => x.id === devId);
+      dev.on = !dev.on;
+      saveState();
+      render();
+    }
+
+    function toggleDeviceFault(pId, hId, groupKey, devId) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      const dev = h[groupKey].find(x => x.id === devId);
+      dev.fault = !dev.fault;
+      if (dev.fault) dev.on = false;
+      saveState();
+      render();
+    }
+
+    function toggleHallAlarm(pId, hId, alarmKey) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      h.alarms[alarmKey] = !h.alarms[alarmKey];
+      if (alarmKey === 'tempColdHeat') h.temp = h.alarms[alarmKey] ? 33.8 : 24.8;
+      if (alarmKey === 'n2') h.n2_ppm = h.alarms[alarmKey] ? 45 : 14;
+      if (alarmKey === 'co2') h.co2_ppm = h.alarms[alarmKey] ? 4200 : 1900;
+      saveState();
+      render();
+    }
+
+    function turnAllHallDevices(pId, hId, onState) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      [
+        h.exhaustFans, h.heaters, h.coolingMotors, h.tunnelFans,
+        h.ventWindows, h.feedLines, h.lightLines, h.elecPanels
+      ].forEach(grp => grp.forEach(d => {
+        if (!d.fault) d.on = onState;
+      }));
+      saveState();
+      render();
+    }
+
+    function toggleGenerator(pId, gIdx) {
+      const p = state.projects.find(x => x.id === pId);
+      const g = p.generators[gIdx];
+      g.on = !g.on;
+      saveState();
+      render();
+    }
+
+    function toggleGeneratorFault(pId, gIdx) {
+      const p = state.projects.find(x => x.id === pId);
+      const g = p.generators[gIdx];
+      g.fault = !g.fault;
+      if (g.fault) g.on = false;
+      saveState();
+      render();
+    }
+
+    function toggleShower(pId) {
+      const p = state.projects.find(x => x.id === pId);
+      p.sanitationShower.on = !p.sanitationShower.on;
+      saveState();
+      render();
+    }
+
+    function toggleShowerFault(pId) {
+      const p = state.projects.find(x => x.id === pId);
+      p.sanitationShower.fault = !p.sanitationShower.fault;
+      saveState();
+      render();
+    }
+
+    function toggleSiloAuger(pId, hId) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      h.silo.augerOn = !h.silo.augerOn;
+      saveState();
+      render();
+    }
+
+    function toggleSiloFault(pId, hId) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      h.silo.fault = !h.silo.fault;
+      saveState();
+      render();
+    }
+
+    function refillSilo(pId, hId) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      h.silo.currentTons = h.silo.capacityTons;
+      h.silo.fault = false;
+      saveState();
+      render();
+    }
+
+    function refillAllSilos(pId) {
+      const p = state.projects.find(x => x.id === pId);
+      p.halls.forEach(h => {
+        h.silo.currentTons = h.silo.capacityTons;
+        h.silo.fault = false;
+      });
+      saveState();
+      render();
+    }
+
+    // Staff Attendance & Edit
+    function setAttendance(pId, staffId, status) {
+      const p = state.projects.find(x => x.id === pId);
+      const member = p.staff.find(s => s.id === staffId);
+      member.status = status;
+      saveState();
+      render();
+    }
+
+    function markAllStaffPresent(pId) {
+      const p = state.projects.find(x => x.id === pId);
+      p.staff.forEach(s => s.status = 'present');
+      saveState();
+      render();
+    }
+
+    let editingContext = null;
+    function openEditStaffModal(pId, staffId) {
+      const p = state.projects.find(x => x.id === pId);
+      const member = p.staff.find(s => s.id === staffId);
+      editingContext = { pId, staffId };
+      document.getElementById('editStaffName').value = member.name;
+      document.getElementById('editStaffRole').value = member.role;
+      document.getElementById('editStaffPhone').value = member.phone;
+      document.getElementById('editStaffModal').classList.add('open');
+    }
+
+    function closeStaffModal() {
+      document.getElementById('editStaffModal').classList.remove('open');
+      editingContext = null;
+    }
+
+    function saveStaffEdit() {
+      if (!editingContext) return;
+      const p = state.projects.find(x => x.id === editingContext.pId);
+      const member = p.staff.find(s => s.id === editingContext.staffId);
+      const newName = document.getElementById('editStaffName').value.trim();
+      const newPhone = document.getElementById('editStaffPhone').value.trim();
+      if (newName) member.name = newName;
+      member.phone = newPhone;
+      saveState();
+      closeStaffModal();
+      render();
+    }
+
+    // Faults Modal & Random Fault Simulator
+    function openFaultsModal() {
+      const faults = getAllFaults();
+      const box = document.getElementById('faultsListContainer');
+      if (faults.length === 0) {
+        box.innerHTML = `<p style="padding:18px; text-align:center; color:#6ee7b7;">هیچ کێشەیەک لە هیچ کام لە 8 پڕۆژەکەدا نییە. هەموو گڵۆپەکان سەوزن.</p>`;
+      } else {
+        box.innerHTML = faults.map(f => `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); border:1px solid var(--red); padding:10px 14px; border-radius:10px; margin-bottom:8px;">
+            <div>
+              <strong>${f.pName} - ${f.location}</strong>
+              <div style="font-size:0.84rem; color:#fca5a5;">⚠️ ${f.item}</div>
+            </div>
+            <button class="btn btn-primary" onclick="jumpToFault(${f.pId}, ${f.hId || 1})">چوونە سەر ئامێر</button>
+          </div>
+        `).join('');
+      }
+      document.getElementById('faultsModal').classList.add('open');
+    }
+
+    function closeFaultsModal() {
+      document.getElementById('faultsModal').classList.remove('open');
+    }
+
+    function jumpToFault(pId, hId) {
+      closeFaultsModal();
+      openProject(pId, 'halls', hId);
+    }
+
+    function fixAllFaults() {
+      state.projects.forEach(p => {
+        p.sanitationShower.fault = false;
+        p.generators.forEach(g => g.fault = false);
+        p.halls.forEach(h => {
+          h.alarms.tempColdHeat = false;
+          h.alarms.n2 = false;
+          h.alarms.co2 = false;
+          h.silo.fault = false;
+          [
+            h.exhaustFans, h.heaters, h.coolingMotors, h.tunnelFans,
+            h.ventWindows, h.feedLines, h.lightLines, h.elecPanels
+          ].forEach(grp => grp.forEach(d => {
+            if (d.fault) {
+              d.fault = false;
+              d.on = true;
+            }
+          }));
+        });
+      });
+      saveState();
+      closeFaultsModal();
+      render();
+    }
+
+    function simulateRandomFault() {
+      const pIdx = Math.floor(Math.random() * state.projects.length);
+      const hIdx = Math.floor(Math.random() * 10);
+      const hall = state.projects[pIdx].halls[hIdx];
+      const groups = [hall.exhaustFans, hall.heaters, hall.coolingMotors, hall.feedLines, hall.elecPanels];
+      const grp = groups[Math.floor(Math.random() * groups.length)];
+      const dev = grp[Math.floor(Math.random() * grp.length)];
+      dev.fault = true;
+      dev.on = false;
+      saveState();
+      render();
+    }
+
+    // Initialize Application
+    loadState();
+    render();
+  </script>
+</body>
+</html>
