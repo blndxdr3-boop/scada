@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>سیستەمی زیرەکی کێڵگەکانی پەلەوەر | Smart SCADA</title>
+  <title>سیستەمی پیشەیی کێڵگەکانی پەلەوەر | SCADA Pro V4</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-body: #090d16;
-      --bg-surface: #111827;
+      --bg-body: #070b14;
+      --bg-surface: #0f172a;
       --bg-card: #1e293b;
-      --bg-chip: #0f172a;
+      --bg-chip: #090f1d;
       --border: rgba(148, 163, 184, 0.16);
+      --border-focus: rgba(14, 165, 233, 0.5);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --primary: #0ea5e9;
@@ -22,10 +23,15 @@
       --emerald: #10b981;
       --emerald-soft: rgba(16, 185, 129, 0.15);
       --danger: #f43f5e;
-      --danger-soft: rgba(244, 63, 94, 0.16);
+      --danger-soft: rgba(244, 63, 94, 0.18);
       --amber: #f59e0b;
       --amber-soft: rgba(245, 158, 11, 0.16);
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      --purple: #a855f7;
+      --purple-soft: rgba(168, 85, 247, 0.15);
+      --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
     }
 
     body.light-mode {
@@ -33,17 +39,17 @@
       --bg-surface: #ffffff;
       --bg-card: #f8fafc;
       --bg-chip: #e2e8f0;
-      --border: rgba(15, 23, 42, 0.1);
+      --border: rgba(15, 23, 42, 0.12);
       --text-main: #0f172a;
       --text-muted: #64748b;
-      --shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+      --shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Vazirmatn', system-ui, sans-serif;
+      font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -51,29 +57,33 @@
       background-color: var(--bg-body);
       color: var(--text-main);
       min-height: 100vh;
-      padding-bottom: 90px;
+      padding-bottom: 92px;
       transition: background-color 0.25s, color 0.25s;
+      line-height: 1.55;
     }
 
     /* هێدەری سەرەوە */
     header {
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
+      padding: 10px 14px;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 120;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       box-shadow: var(--shadow);
+      flex-wrap: wrap;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex: 1;
+      min-width: 200px;
     }
 
     .app-logo {
@@ -84,82 +94,108 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 21px;
       color: #fff;
+      cursor: pointer;
       flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
     }
 
     .project-select {
       background: var(--bg-card);
       color: var(--text-main);
       border: 1px solid var(--border);
-      padding: 7px 12px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 800;
       cursor: pointer;
       outline: none;
+      width: 100%;
+      max-width: 240px;
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
-    .icon-btn {
+    .btn {
       background: var(--bg-card);
       color: var(--text-main);
       border: 1px solid var(--border);
       height: 38px;
       padding: 0 12px;
-      border-radius: 10px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
       transition: 0.2s;
+      text-decoration: none;
+      white-space: nowrap;
     }
 
-    .icon-btn.alarm-ok {
+    .btn:hover {
+      border-color: var(--primary);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-emerald {
       background: var(--emerald-soft);
       border-color: var(--emerald);
       color: var(--emerald);
     }
 
-    .icon-btn.alarm-fault {
+    .btn-danger {
       background: var(--danger-soft);
       border-color: var(--danger);
       color: var(--danger);
-      animation: pulseRed 1.3s infinite;
     }
 
-    @keyframes pulseRed {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+    .btn-amber {
+      background: var(--amber-soft);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .alarm-pulse {
+      animation: pulseDanger 1.2s infinite;
+    }
+
+    @keyframes pulseDanger {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+      50% { transform: scale(1.04); box-shadow: 0 0 14px 3px rgba(244, 63, 94, 0.5); }
     }
 
     main {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 16px 14px;
+      padding: 16px 12px;
     }
 
-    /* کارتی کورتەی گشتی */
-    .summary-strip {
+    /* ستریپی ئامارەکانی سەرەوە */
+    .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 10px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
-    .sum-box {
+    .kpi-card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       padding: 12px 14px;
       display: flex;
       align-items: center;
@@ -167,47 +203,47 @@
       box-shadow: var(--shadow);
     }
 
-    .sum-box-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+    .kpi-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
       background: var(--primary-soft);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
+      font-size: 1.3rem;
       flex-shrink: 0;
     }
 
-    .sum-box small {
+    .kpi-card small {
       color: var(--text-muted);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       display: block;
     }
 
-    .sum-box strong {
-      font-size: 1.05rem;
+    .kpi-card strong {
+      font-size: 1.02rem;
       font-weight: 800;
     }
 
-    /* کارتی پڕۆژەکان لە پەڕەی هۆم */
+    /* کارتی پڕۆژەکان لە پەڕەی سەرەکی */
     .projects-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 14px;
     }
 
     .p-card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
       padding: 16px;
       cursor: pointer;
       transition: 0.25s;
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
     .p-card:hover {
@@ -219,7 +255,7 @@
       border-color: var(--danger);
     }
 
-    .mini-halls-dots {
+    .halls-mini-matrix {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 6px;
@@ -228,8 +264,8 @@
       border-radius: 12px;
     }
 
-    .h-dot {
-      height: 26px;
+    .h-badge {
+      height: 28px;
       border-radius: 7px;
       background: var(--emerald-soft);
       border: 1px solid var(--emerald);
@@ -241,56 +277,63 @@
       justify-content: center;
     }
 
-    .h-dot.fault {
+    .h-badge.fault {
       background: var(--danger-soft);
       border-color: var(--danger);
       color: var(--danger);
     }
 
-    .p-card-stats {
+    .p-stats-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       text-align: center;
     }
 
-    .p-stat-item {
+    .p-stat-box {
       background: var(--bg-card);
       padding: 8px 6px;
       border-radius: 10px;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
     }
 
-    .p-stat-item span {
+    .p-stat-box span {
       color: var(--text-muted);
       display: block;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
     }
 
-    /* شریتی هەڵبژاردنی ١٠ هۆڵەکە */
-    .hall-pills-scroll {
+    /* شریتی هۆڵەکان و دوگمەی Matrix View */
+    .hall-nav-row {
       display: flex;
+      align-items: center;
       gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 8px;
       margin-bottom: 14px;
+    }
+
+    .hall-pills-wrap {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      flex: 1;
       scrollbar-width: none;
     }
-    .hall-pills-scroll::-webkit-scrollbar { display: none; }
+    .hall-pills-wrap::-webkit-scrollbar { display: none; }
 
     .hall-pill {
       background: var(--bg-surface);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 9px 16px;
+      padding: 8px 14px;
       border-radius: 50px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       transition: 0.2s;
     }
 
@@ -305,72 +348,145 @@
       color: var(--danger);
     }
 
-    /* ٣ هەستەوەرەکەی کەشوهەوای هۆڵ */
-    .sensors-row {
+    /* بانەری زانیاریی جووجکە و سایلۆ و مۆدی ئۆتۆماتیکی ناو هۆڵ */
+    .hall-master-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .flock-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .flock-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .flock-item small {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      display: block;
+    }
+
+    .flock-item strong {
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+
+    /* مۆدە زیرەکەکانی کەشوهەوا */
+    .modes-strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .mode-chip {
+      flex: 1;
+      min-width: 115px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+
+    .mode-chip.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ٣ هەستەوەرەکەی کەشوهەوا */
+    .sensors-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    .sensor-tile {
+    .sensor-box {
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       padding: 12px;
       text-align: center;
       cursor: pointer;
       transition: 0.2s;
-      position: relative;
     }
 
-    .sensor-tile.alarm {
+    .sensor-box.alarm {
       background: var(--danger-soft);
       border-color: var(--danger);
     }
 
-    .sensor-tile .val {
-      font-size: 1.25rem;
+    .sensor-box .val {
+      font-size: 1.3rem;
       font-weight: 900;
       color: var(--primary);
-      margin: 4px 0;
+      margin: 2px 0;
     }
 
-    .sensor-tile.alarm .val {
+    .sensor-box.alarm .val {
       color: var(--danger);
     }
 
-    /* کارتی زیرەکی گرووپی ئامێرەکان (Smart Group Card) */
-    .smart-groups-grid {
+    /* کارتی گرووپی ئامێرەکان */
+    .groups-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 14px;
+      gap: 12px;
     }
 
-    .smart-card {
+    .group-card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: var(--radius-lg);
+      padding: 15px;
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .smart-card-head {
+    .group-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .smart-title {
+    .group-title {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .smart-title-icon {
+    .group-icon {
       width: 38px;
       height: 38px;
       border-radius: 10px;
@@ -381,165 +497,172 @@
       font-size: 1.2rem;
     }
 
-    /* سویچی مۆدێرن (Toggle Switch) */
-    .switch-btn {
-      padding: 6px 14px;
+    .master-switch {
+      padding: 6px 12px;
       border-radius: 50px;
       border: 1px solid var(--border);
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 800;
       cursor: pointer;
-      transition: 0.2s;
     }
 
-    .switch-btn.all-on {
+    .master-switch.on {
       background: var(--emerald);
       border-color: var(--emerald);
       color: #fff;
     }
 
-    .switch-btn.all-off {
+    .master-switch.off {
       background: var(--bg-card);
       color: var(--text-muted);
     }
 
-    /* دوگمە بچووکەکانی ژمارەی ئامێرەکان (١ تا ١٤) */
-    .unit-chips-wrap {
+    .units-wrap {
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
+      gap: 6px;
     }
 
-    .unit-chip {
-      min-width: 42px;
-      height: 38px;
-      padding: 0 10px;
-      border-radius: 10px;
+    .unit-btn {
+      min-width: 40px;
+      height: 36px;
+      padding: 0 9px;
+      border-radius: 9px;
       border: 1px solid var(--border);
       background: var(--bg-chip);
       color: var(--text-muted);
       font-weight: 800;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
       transition: 0.15s;
-      user-select: none;
     }
 
-    .unit-chip.on {
+    .unit-btn.on {
       background: var(--emerald-soft);
       border-color: var(--emerald);
       color: var(--emerald);
     }
 
-    .unit-chip.fault {
+    .unit-btn.fault {
       background: var(--danger);
       border-color: var(--danger);
       color: #fff;
-      animation: pulseRed 1s infinite;
+      animation: pulseDanger 1s infinite;
     }
 
-    .card-hint {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      border-top: 1px solid var(--border);
-      padding-top: 8px;
-    }
-
-    /* سایلۆکان */
-    .silos-compact-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-      gap: 12px;
-    }
-
-    .silo-mini-card {
+    /* خشتەی بەراوردی ١٠ هۆڵەکە بەیەکەوە (Matrix Table) */
+    .matrix-wrap {
+      overflow-x: auto;
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      text-align: center;
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow);
     }
 
-    .silo-bar-wrap {
-      height: 14px;
-      background: var(--bg-chip);
-      border-radius: 50px;
-      overflow: hidden;
-      margin: 10px 0;
-      border: 1px solid var(--border);
-    }
-
-    .silo-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #f59e0b, #10b981);
-      transition: width 0.3s;
-    }
-
-    /* کارتی کارمەندان بۆ مۆبایل */
-    .staff-search-bar {
+    .matrix-table {
       width: 100%;
-      padding: 12px 16px;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+
+    .matrix-table th, .matrix-table td {
+      padding: 11px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+
+    .matrix-table th {
+      background: var(--bg-card);
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    /* کارتی ستاف و کارمەندان */
+    .search-input {
+      width: 100%;
+      padding: 11px 14px;
       border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--bg-surface);
       color: var(--text-main);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       margin-bottom: 12px;
       outline: none;
     }
 
-    .staff-cards-list {
+    .staff-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 10px;
     }
 
-    .staff-item-card {
+    .staff-card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      padding: 13px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    .staff-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .att-group {
+    .att-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
     }
 
-    .att-pill {
-      padding: 7px 6px;
+    .att-btn {
+      padding: 7px 4px;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--bg-card);
       color: var(--text-muted);
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 800;
       cursor: pointer;
-      text-align: center;
     }
 
-    .att-pill.present.active { background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald); }
-    .att-pill.absent.active { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
-    .att-pill.leave.active { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
+    .att-btn.present.active { background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald); }
+    .att-btn.absent.active { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+    .att-btn.leave.active { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
 
-    /* مێنوی خوارەوەی مۆبایل (Bottom Bar) */
+    /* سایلۆکان */
+    .silos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .silo-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: var(--bg-chip);
+      border-radius: 50px;
+      overflow: hidden;
+      margin: 8px 0;
+      border: 1px solid var(--border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber), var(--emerald));
+      transition: width 0.3s;
+    }
+
+    /* مێنوی خوارەوەی شاشە */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -549,32 +672,32 @@
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
-      padding: 8px 6px;
+      padding: 6px 4px;
       z-index: 150;
-      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .nav-item {
+    .nav-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      font-size: 0.74rem;
-      font-weight: 700;
+      gap: 2px;
+      font-size: 0.7rem;
+      font-weight: 800;
       cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 12px;
+      padding: 6px 10px;
+      border-radius: 10px;
       transition: 0.2s;
     }
 
-    .nav-item .nav-icon {
-      font-size: 1.25rem;
+    .nav-btn .ico {
+      font-size: 1.2rem;
     }
 
-    .nav-item.active {
+    .nav-btn.active {
       color: var(--primary);
       background: var(--primary-soft);
     }
@@ -583,24 +706,24 @@
     .modal-bg {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.72);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(5px);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 250;
-      padding: 16px;
+      padding: 14px;
     }
     .modal-bg.open { display: flex; }
 
     .modal-box {
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       padding: 20px;
-      max-height: 82vh;
+      max-height: 85vh;
       overflow-y: auto;
     }
 
@@ -611,13 +734,13 @@
       border: 1px solid var(--border);
       background: var(--bg-card);
       color: var(--text-main);
-      margin-top: 6px;
-      margin-bottom: 14px;
-      font-size: 0.9rem;
+      margin-top: 4px;
+      margin-bottom: 12px;
+      font-size: 0.88rem;
     }
 
-    @media (max-width: 500px) {
-      .sensors-row { grid-template-columns: 1fr; }
+    @media (max-width: 540px) {
+      .sensors-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -626,59 +749,61 @@
   <!-- هێدەری سەرەوە -->
   <header>
     <div class="header-right">
-      <div class="app-logo" onclick="goHome()" style="cursor:pointer;">🐔</div>
-      <select id="projectSelectDropdown" class="project-select" onchange="handleProjectDropdown(this.value)"></select>
+      <div class="app-logo" onclick="goHome()" title="گەڕانەوە بۆ پەڕەی سەرەکی">🐔</div>
+      <select id="projectDropdown" class="project-select" onchange="onProjectSelect(this.value)"></select>
     </div>
 
     <div class="header-left">
-      <button id="globalAlarmBtn" class="icon-btn alarm-ok" onclick="openFaultsModal()">
-        <span id="globalAlarmCount">٠ کێشە</span>
+      <button id="alarmBannerBtn" class="btn btn-emerald" onclick="openFaultsModal()">
+        <span id="alarmBannerText">✅ ٠ کێشە</span>
       </button>
-      <button class="icon-btn" onclick="toggleFaultMode()" id="faultModeBtn" title="تاقیکردنەوەی دروستکردنی ئەلارم">
-        🔧 تاقیکردنەوە
-      </button>
-      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="گۆڕینی ڕووناکی شاشە">☀️</button>
+      <button class="btn" id="soundToggleBtn" onclick="toggleSound()" title="دەنگی زەنگی ئەلارم">🔊</button>
+      <button class="btn" id="simModeBtn" onclick="toggleSimMode()" title="دۆخی تاقیکردنەوەی کێشە">🔧 تاقیکردنەوە</button>
+      <button class="btn" id="themeToggleBtn" onclick="toggleTheme()" title="گۆڕینی ڕووناکی شاشە">☀️</button>
     </div>
   </header>
 
-  <!-- ناوەڕۆکی سەرەکی -->
   <main id="appContainer"></main>
 
   <!-- مێنوی خوارەوەی مۆبایل -->
   <nav class="bottom-nav">
-    <button class="nav-item" id="nav-home" onclick="goHome()">
-      <span class="nav-icon">🏠</span>
-      <span>هەموو پڕۆژەکان</span>
+    <button class="nav-btn" id="nav-home" onclick="goHome()">
+      <span class="ico">🏠</span>
+      <span>٨ پڕۆژەکە</span>
     </button>
-    <button class="nav-item" id="nav-halls" onclick="switchTab('halls')">
-      <span class="nav-icon">🎛️</span>
+    <button class="nav-btn" id="nav-halls" onclick="switchTab('halls')">
+      <span class="ico">🎛️</span>
       <span>١٠ هۆڵەکە</span>
     </button>
-    <button class="nav-item" id="nav-power" onclick="switchTab('power')">
-      <span class="nav-icon">⚡</span>
+    <button class="nav-btn" id="nav-power" onclick="switchTab('power')">
+      <span class="ico">⚡</span>
       <span>مۆلیدە و تەعقیم</span>
     </button>
-    <button class="nav-item" id="nav-silos" onclick="switchTab('silos')">
-      <span class="nav-icon">🌾</span>
+    <button class="nav-btn" id="nav-silos" onclick="switchTab('silos')">
+      <span class="ico">🌾</span>
       <span>١٠ سایلۆکە</span>
     </button>
-    <button class="nav-item" id="nav-staff" onclick="switchTab('staff')">
-      <span class="nav-icon">👥</span>
+    <button class="nav-btn" id="nav-staff" onclick="switchTab('staff')">
+      <span class="ico">👥</span>
       <span>ستاف (٢٥)</span>
+    </button>
+    <button class="nav-btn" id="nav-logs" onclick="switchTab('logs')">
+      <span class="ico">📜</span>
+      <span>ڕاپۆرت و داتا</span>
     </button>
   </nav>
 
   <!-- مۆداڵی دەستکاری ناوی کارمەند -->
   <div class="modal-bg" id="staffModal">
     <div class="modal-box">
-      <h3 style="margin-bottom:14px;">✏️ گۆڕینی ناوی کارمەند</h3>
-      <label style="font-size:0.8rem; color:var(--text-muted);">ناوی سیانی:</label>
-      <input type="text" id="staffNameInput" class="form-input" />
-      <label style="font-size:0.8rem; color:var(--text-muted);">ژمارەی مۆبایل:</label>
-      <input type="text" id="staffPhoneInput" class="form-input" />
+      <h3 style="margin-bottom:12px;">✏️ دەستکاریکردنی کارمەند</h3>
+      <label style="font-size:0.78rem; color:var(--text-muted);">ناوی سیانی کارمەند:</label>
+      <input type="text" id="staffNameInp" class="form-input" />
+      <label style="font-size:0.78rem; color:var(--text-muted);">ژمارەی مۆبایل (بۆ پەیوەندی و واتسئەپ):</label>
+      <input type="text" id="staffPhoneInp" class="form-input" placeholder="0750xxxxxxx" />
       <div style="display:flex; justify-content:flex-end; gap:8px;">
-        <button class="icon-btn" onclick="closeStaffModal()">پاشگەزبوونەوە</button>
-        <button class="icon-btn" style="background:var(--primary); color:#fff;" onclick="saveStaffModal()">پاشەکەوتکردن</button>
+        <button class="btn" onclick="closeStaffModal()">پاشگەزبوونەوە</button>
+        <button class="btn btn-primary" onclick="saveStaffModal()">پاشەکەوتکردن</button>
       </div>
     </div>
   </div>
@@ -686,27 +811,55 @@
   <!-- مۆداڵی لیستی ئەلارمەکان -->
   <div class="modal-bg" id="faultsModal">
     <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3>🚨 کێشە و ئەلارمە چالاکەکان</h3>
-        <button class="icon-btn alarm-ok" onclick="fixAllFaults()">چاککردنی هەمووی</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+        <h3>🚨 لیستی ئەلارم و کێشە چالاکەکان</h3>
+        <button class="btn btn-emerald" onclick="fixAllFaults()">✅ چاککردنەوەی هەمووی</button>
       </div>
-      <div id="faultsModalContent"></div>
+      <div id="faultsListBox"></div>
       <div style="display:flex; justify-content:flex-end; margin-top:14px;">
-        <button class="icon-btn" onclick="closeFaultsModal()">داخستن</button>
+        <button class="btn" onclick="closeFaultsModal()">داخستن</button>
       </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'SMART_SCADA_V3';
+    const STORAGE_KEY = 'POULTRY_SCADA_PRO_V4';
 
     const FIRST_NAMES = ['کاروان','بەرهەم','سۆران','ئارام','دیار','هەڵۆ','ڕێبین','شوان','پشتیوان','زانا','هێمن','ئومێد','شاهین','بەختیار','کاردۆ','سەنگەر','نەبەز','ڕزگار','هاوکار','دلێر','کامەران','گۆران','سامان','یاسین','فەرهاد'];
     const LAST_NAMES = ['ئەحمەد','محەمەد','عەلی','حەسەن','ئیبراهیم','مەحموود','عوسمان','قادر','کەریم','سەعید','مستەفا','عەبدوڵڵا'];
 
+    // دەنگی زەنگی ئەلارم بە Web Audio API (بێ پێویستی بە فایلی دەرەکی)
+    let audioCtx = null;
+    function playAlarmBeep() {
+      if (!state.soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+        if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+      } catch (e) {}
+    }
+
+    function addLog(text) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('ku-IQ', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      state.logs.unshift({ time: timeStr, text });
+      if (state.logs.length > 60) state.logs.pop();
+    }
+
     function createStaff(pIdx) {
       const roles = [
-        'ئەندازیاری ئۆتۆمەیشن', 'دکتۆری پەلەوەر', 'سەرپەرشتیاری گشتی',
-        'وەستای کارەبا', 'وەستای میکانیک', 'پاسەوان', 'چێشتلێنەر'
+        'ئەندازیاری ئۆتۆمەیشن', 'دکتۆری تایبەتمەندی پەلەوەر', 'سەرپەرشتیاری کرێکارەکان',
+        'وەستای کارەبا', 'کرێکاری میکانیک', 'پاسەوان', 'چێشتلێنەر'
       ];
       for (let i = 1; i <= 18; i++) roles.push(`کرێکاری هۆڵ (${i})`);
 
@@ -714,7 +867,7 @@
         id: `P${pIdx}_S${idx+1}`,
         name: `${FIRST_NAMES[(idx + pIdx*2) % FIRST_NAMES.length]} ${LAST_NAMES[(idx + pIdx) % LAST_NAMES.length]}`,
         role,
-        phone: `0750 ${110 + pIdx}${210 + idx}`,
+        phone: `0750${11 + pIdx}${2100 + idx}`,
         status: 'present'
       }));
     }
@@ -724,35 +877,45 @@
     }
 
     function createHall(hIdx) {
+      const ageDays = 14 + (hIdx * 2);
+      const targetTemp = +(33 - Math.min(ageDays * 0.35, 11)).toFixed(1);
       return {
         id: hIdx,
         name: `هۆڵی ${hIdx}`,
-        temp: +(24.5 + (hIdx % 3) * 0.4).toFixed(1),
-        n2: 12 + (hIdx % 4),
-        co2: 1850 + hIdx * 25,
+        dimensions: '80m × 20m',
+        climateMode: 'auto', // 'auto' | 'summer' | 'winter' | 'vent'
+        flock: {
+          ageDays,
+          birdsCount: 14850 - (hIdx * 12),
+          mortalityToday: hIdx % 3
+        },
+        temp: targetTemp,
+        targetTemp,
+        n2: 11 + (hIdx % 4),
+        co2: 1750 + hIdx * 30,
         alarms: { temp: false, n2: false, co2: false },
-        silo: { tons: +(19.5 - (hIdx % 5) * 2).toFixed(1), max: 25, augerOn: true, fault: false },
+        silo: { tons: +(19.5 - (hIdx % 5) * 2.1).toFixed(1), max: 25, augerOn: true, fault: false },
         groups: {
-          elecPanels: { title: 'لوحەی کارەبای مەرکەزی', icon: '⚡', label: 'لوحە', units: makeUnits(2, true) },
-          exhaustFans: { title: 'ساحیبەکانی هەواگۆڕکێ', icon: '🌀', label: 'ساحیبە', units: makeUnits(14, true) },
-          tunnelFans: { title: 'ساحیبەی تونێل (ساردی و گەرمی)', icon: '🌬️', label: 'تونێل', units: makeUnits(2, true) },
-          heaters: { title: 'هیتەرەکانی گەرمکەرەوە', icon: '🔥', label: 'هیتەر', units: makeUnits(6, false) },
-          coolingMotors: { title: 'ماتۆڕی شەلالی ساردکەرەوە', icon: '💧', label: 'شەلال', units: makeUnits(4, true) },
-          ventWindows: { title: 'پەنجەرەی تەهویە (ڕاست و چەپ)', icon: '🪟', label: 'پەنجەرە', units: makeUnits(2, true) },
-          feedLines: { title: 'هێڵی دانخۆری ئۆتۆماتیکی', icon: '🌾', label: 'هێڵی عەلەف', units: makeUnits(6, true) },
-          lightLines: { title: 'هێڵی ڕووناکی ناوەوە', icon: '💡', label: 'ڕووناکی', units: makeUnits(6, true) }
+          elecPanels: { title: 'لوحەی کارەبای مەرکەزی (٢)', icon: '⚡', label: 'لوحەی کارەبا', units: makeUnits(2, true) },
+          exhaustFans: { title: 'ساحیبەکانی هەواگۆڕکێ (١٤)', icon: '🌀', label: 'ساحیبە', units: makeUnits(14, true) },
+          tunnelFans: { title: 'ساحیبەی تونێل - ساردی/گەرمی (٢)', icon: '🌬️', label: 'تونێل', units: makeUnits(2, true) },
+          heaters: { title: 'هیتەرەکانی گەرمکەرەوە (٦)', icon: '🔥', label: 'هیتەر', units: makeUnits(6, false) },
+          coolingMotors: { title: 'ماتۆڕی شەلالی ساردکەرەوە (٤)', icon: '💧', label: 'شەلال', units: makeUnits(4, true) },
+          ventWindows: { title: 'پەنجەرەی تەهویەی ڕاست و چەپ (٢)', icon: '🪟', label: 'پەنجەرە', units: makeUnits(2, true) },
+          feedLines: { title: 'هێڵی دانخۆری ئۆتۆماتیکی (٦)', icon: '🌾', label: 'هێڵی دانخۆری', units: makeUnits(6, true) },
+          lightLines: { title: 'هێڵی ڕووناکی ناوەوە (٦)', icon: '💡', label: 'هێڵی ڕووناکی', units: makeUnits(6, true) }
         }
       };
     }
 
-    function buildInitialProjects() {
+    function buildDefaultData() {
       return Array.from({ length: 8 }, (_, p) => ({
         id: p + 1,
         name: `پڕۆژەی دەواجنی (${p + 1})`,
-        shower: { on: true, level: 92, entries: 18 + p, fault: false },
+        shower: { on: true, level: 92, entries: 19 + p, fault: false },
         generators: [
-          { id: 1, name: 'مۆلیدەی سەرەکی (1) - 500 kVA', on: true, fuel: 86, fault: false },
-          { id: 2, name: 'مۆلیدەی یەدەگ (2) - 500 kVA', on: false, fuel: 95, fault: false }
+          { id: 1, name: 'مۆلیدەی سەرەکی (1) - 500 kVA', on: true, fuel: 85, hours: 1410 + p * 15, fault: false },
+          { id: 2, name: 'مۆلیدەی یەدەگ (2) - 500 kVA', on: false, fuel: 96, hours: 820 + p * 10, fault: false }
         ],
         halls: Array.from({ length: 10 }, (_, h) => createHall(h + 1)),
         staff: createStaff(p + 1)
@@ -760,43 +923,59 @@
     }
 
     let state = {
-      view: 'home', // 'home' | 'halls' | 'power' | 'silos' | 'staff'
+      view: 'home', // 'home' | 'halls' | 'power' | 'silos' | 'staff' | 'logs'
       projectId: 1,
       hallId: 1,
-      faultSimMode: false,
-      staffSearch: '',
+      hallMatrixMode: false, // پیشاندانی خشتەی بەراوردی ١٠ هۆڵەکە بەیەکەوە
+      simMode: false,
+      soundEnabled: true,
       lightMode: false,
-      projects: []
+      staffSearch: '',
+      projects: [],
+      logs: []
     };
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        state.projects = raw ? JSON.parse(raw) : buildInitialProjects();
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state.projects = parsed.projects || buildDefaultData();
+          state.logs = parsed.logs || [];
+        } else {
+          state.projects = buildDefaultData();
+          addLog('سیستەمی SCADA Pro V4 بە سەرکەوتوویی کەوتە کار.');
+          saveState();
+        }
       } catch (e) {
-        state.projects = buildInitialProjects();
+        state.projects = buildDefaultData();
       }
     }
 
     function saveState() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects)); } catch (e) {}
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          projects: state.projects,
+          logs: state.logs
+        }));
+      } catch (e) {}
     }
 
     function getAllFaults() {
       const list = [];
       state.projects.forEach(p => {
-        if (p.shower.fault) list.push({ pId: p.id, pName: p.name, tab: 'power', text: 'حەمامی تەعقیم' });
+        if (p.shower.fault) list.push({ pId: p.id, pName: p.name, tab: 'power', text: 'حەمامی تەعقیمی دەرگا' });
         p.generators.forEach(g => {
           if (g.fault) list.push({ pId: p.id, pName: p.name, tab: 'power', text: g.name });
         });
         p.halls.forEach(h => {
-          if (h.alarms.temp) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name}: ئەلارمی پلەی گەرمی` });
-          if (h.alarms.n2) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name}: بەرزی گازی N2` });
-          if (h.alarms.co2) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name}: بەرزی گازی CO2` });
-          if (h.silo.fault) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'silos', text: `سایلۆی ${h.name}` });
+          if (h.alarms.temp) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name}: ئەلارمی پلەی گەرمی (${h.temp}°C)` });
+          if (h.alarms.n2) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name}: بەرزی گازی N2 (${h.n2} PPM)` });
+          if (h.alarms.co2) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name}: بەرزی گازی CO2 (${h.co2} PPM)` });
+          if (h.silo.fault) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'silos', text: `سایلۆی عەلەفی ${h.name}` });
           Object.values(h.groups).forEach(grp => {
             grp.units.forEach(u => {
-              if (u.fault) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name} - ${grp.label} ژمارە ${u.num}` });
+              if (u.fault) list.push({ pId: p.id, pName: p.name, hId: h.id, tab: 'halls', text: `${h.name} - ${grp.label} (${u.num})` });
             });
           });
         });
@@ -819,18 +998,22 @@
     function toggleTheme() {
       state.lightMode = !state.lightMode;
       document.body.classList.toggle('light-mode', state.lightMode);
-      document.getElementById('themeBtn').textContent = state.lightMode ? '🌙' : '☀️';
+      document.getElementById('themeToggleBtn').textContent = state.lightMode ? '🌙' : '☀️';
     }
 
-    function toggleFaultMode() {
-      state.faultSimMode = !state.faultSimMode;
-      const btn = document.getElementById('faultModeBtn');
-      btn.style.background = state.faultSimMode ? 'var(--amber)' : '';
-      btn.style.color = state.faultSimMode ? '#000' : '';
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      document.getElementById('soundToggleBtn').textContent = state.soundEnabled ? '🔊' : '🔇';
+    }
+
+    function toggleSimMode() {
+      state.simMode = !state.simMode;
+      const btn = document.getElementById('simModeBtn');
+      btn.className = state.simMode ? 'btn btn-amber' : 'btn';
       render();
     }
 
-    function handleProjectDropdown(val) {
+    function onProjectSelect(val) {
       if (val === 'home') {
         goHome();
       } else {
@@ -850,6 +1033,7 @@
       state.projectId = pId;
       state.view = tab;
       state.hallId = hId;
+      state.hallMatrixMode = false;
       render();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -860,55 +1044,54 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function updateBars() {
-      // Dropdown
-      const sel = document.getElementById('projectSelectDropdown');
+    function updateNavigationUI() {
+      const sel = document.getElementById('projectDropdown');
       sel.innerHTML = `<option value="home" ${state.view === 'home' ? 'selected' : ''}>🏠 هەموو پڕۆژەکان (٨ پڕۆژە)</option>` +
         state.projects.map(p => `<option value="${p.id}" ${state.view !== 'home' && state.projectId === p.id ? 'selected' : ''}>📍 ${p.name}</option>`).join('');
 
-      // Alarm Button
       const faults = getAllFaults();
-      const alarmBtn = document.getElementById('globalAlarmBtn');
-      const alarmTxt = document.getElementById('globalAlarmCount');
+      const alarmBtn = document.getElementById('alarmBannerBtn');
+      const alarmTxt = document.getElementById('alarmBannerText');
       if (faults.length === 0) {
-        alarmBtn.className = 'icon-btn alarm-ok';
+        alarmBtn.className = 'btn btn-emerald';
         alarmTxt.textContent = '✅ بێ کێشە';
       } else {
-        alarmBtn.className = 'icon-btn alarm-fault';
+        alarmBtn.className = 'btn btn-danger alarm-pulse';
         alarmTxt.textContent = `🚨 ${faults.length} کێشە`;
       }
 
-      // Bottom Nav Active
-      ['home', 'halls', 'power', 'silos', 'staff'].forEach(k => {
+      ['home', 'halls', 'power', 'silos', 'staff', 'logs'].forEach(k => {
         const el = document.getElementById(`nav-${k}`);
         if (el) el.classList.toggle('active', state.view === k);
       });
     }
 
     function render() {
-      updateBars();
-      const box = document.getElementById('appContainer');
+      updateNavigationUI();
+      const container = document.getElementById('appContainer');
       const project = state.projects.find(p => p.id === state.projectId);
 
-      if (state.view === 'home') box.innerHTML = renderHome();
-      else if (state.view === 'halls') box.innerHTML = renderHalls(project);
-      else if (state.view === 'power') box.innerHTML = renderPower(project);
-      else if (state.view === 'silos') box.innerHTML = renderSilos(project);
-      else if (state.view === 'staff') box.innerHTML = renderStaff(project);
+      if (state.view === 'home') container.innerHTML = renderHomeView();
+      else if (state.view === 'halls') container.innerHTML = renderHallsView(project);
+      else if (state.view === 'power') container.innerHTML = renderPowerView(project);
+      else if (state.view === 'silos') container.innerHTML = renderSilosView(project);
+      else if (state.view === 'staff') container.innerHTML = renderStaffView(project);
+      else if (state.view === 'logs') container.innerHTML = renderLogsAndBackupView(project);
     }
 
-    function renderHome() {
+    function renderHomeView() {
       const faultsCount = getAllFaults().length;
       const totalStaff = state.projects.reduce((s, p) => s + p.staff.filter(x => x.status === 'present').length, 0);
       const totalTons = state.projects.reduce((s, p) => s + p.halls.reduce((a, h) => a + h.silo.tons, 0), 0).toFixed(0);
+      const totalBirds = state.projects.reduce((s, p) => s + p.halls.reduce((a, h) => a + h.flock.birdsCount, 0), 0).toLocaleString();
 
       const cards = state.projects.map(p => {
         const pf = countProjectFaults(p);
         const present = p.staff.filter(s => s.status === 'present').length;
         const tons = p.halls.reduce((a, h) => a + h.silo.tons, 0).toFixed(0);
-        const dots = p.halls.map(h => {
+        const badges = p.halls.map(h => {
           const hf = countHallFaults(h);
-          return `<div class="h-dot ${hf > 0 ? 'fault' : ''}">H${h.id}</div>`;
+          return `<div class="h-badge ${hf > 0 ? 'fault' : ''}" title="${h.name}: ${h.temp}°C">H${h.id}</div>`;
         }).join('');
 
         return `
@@ -916,248 +1099,481 @@
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <strong style="font-size:1.05rem;">${p.name}</strong>
               <span style="font-size:0.78rem; font-weight:800; color:${pf > 0 ? 'var(--danger)' : 'var(--emerald)'}">
-                ${pf > 0 ? `⚠️ ${pf} کێشە` : '🟢 ئاسایی'}
+                ${pf > 0 ? `⚠️ ${pf} ئەلارم` : '🟢 بێ کێشە'}
               </span>
             </div>
-            <div class="mini-halls-dots">${dots}</div>
-            <div class="p-card-stats">
-              <div class="p-stat-item"><span>ستافی ئامادە</span><strong>${present}/25</strong></div>
-              <div class="p-stat-item"><span>کۆی عەلەف</span><strong>${tons} تەن</strong></div>
-              <div class="p-stat-item"><span>مۆلیدە</span><strong>${p.generators.filter(g=>g.on).length}/2 کارا</strong></div>
+            <div class="halls-mini-matrix">${badges}</div>
+            <div class="p-stats-row">
+              <div class="p-stat-box"><span>ستافی ئامادە</span><strong>${present}/25</strong></div>
+              <div class="p-stat-box"><span>عەلەفی سایلۆ</span><strong>${tons} تەن</strong></div>
+              <div class="p-stat-box"><span>مۆلیدەکان</span><strong>${p.generators.filter(g=>g.on).length}/2 کارا</strong></div>
             </div>
           </div>
         `;
       }).join('');
 
       return `
-        <div class="summary-strip">
-          <div class="sum-box">
-            <div class="sum-box-icon">🏭</div>
-            <div><small>کۆی پڕۆژە و هۆڵ</small><strong>٨ پڕۆژە (٨٠ هۆڵ)</strong></div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">🏭</div>
+            <div><small>پڕۆژە و هۆڵەکان</small><strong>٨ پڕۆژە • ٨٠ هۆڵ</strong></div>
           </div>
-          <div class="sum-box">
-            <div class="sum-box-icon">🌾</div>
+          <div class="kpi-card">
+            <div class="kpi-icon">🐥</div>
+            <div><small>کۆی پەلەوەری زیندوو</small><strong>${totalBirds}</strong></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">🌾</div>
             <div><small>کۆی عەلەفی سایلۆکان</small><strong>${totalTons} تەن</strong></div>
           </div>
-          <div class="sum-box">
-            <div class="sum-box-icon">👷</div>
-            <div><small>ستافی ئامادەبوو</small><strong>${totalStaff} لە ٢٠٠ کەس</strong></div>
-          </div>
-          <div class="sum-box">
-            <div class="sum-box-icon">${faultsCount === 0 ? '✅' : '🚨'}</div>
-            <div><small>دۆخی گشتی سیستەم</small><strong>${faultsCount === 0 ? 'بێ کێشە' : faultsCount + ' ئەلارم'}</strong></div>
+          <div class="kpi-card">
+            <div class="kpi-icon">👷</div>
+            <div><small>ستافی ئامادەبوو</small><strong>${totalStaff} / ٢٠٠ کەس</strong></div>
           </div>
         </div>
         <div class="projects-grid">${cards}</div>
       `;
     }
 
-    function renderHalls(project) {
+    function renderHallsView(project) {
       const hall = project.halls.find(h => h.id === state.hallId) || project.halls[0];
 
       const hallPills = project.halls.map(h => {
         const hf = countHallFaults(h);
         return `
-          <button class="hall-pill ${h.id === hall.id ? 'active' : ''} ${hf > 0 ? 'fault' : ''}" onclick="state.hallId=${h.id}; render();">
+          <button class="hall-pill ${!state.hallMatrixMode && h.id === hall.id ? 'active' : ''} ${hf > 0 ? 'fault' : ''}"
+                  onclick="state.hallMatrixMode=false; state.hallId=${h.id}; render();">
             <span>${h.name}</span>
             <span>${hf > 0 ? '🔴' : '🟢'}</span>
           </button>
         `;
       }).join('');
 
+      if (state.hallMatrixMode) {
+        return `
+          <div class="hall-nav-row">
+            <div class="hall-pills-wrap">${hallPills}</div>
+            <button class="btn btn-primary" onclick="state.hallMatrixMode=false; render();">🎛️ گەڕانەوە بۆ کۆنتڕۆڵ</button>
+          </div>
+          ${renderHallsMatrixTable(project)}
+        `;
+      }
+
+      const siloPct = Math.round((hall.silo.tons / hall.silo.max) * 100);
+
       const groupsHtml = Object.entries(hall.groups).map(([gKey, grp]) => {
         const activeCount = grp.units.filter(u => u.on && !u.fault).length;
         const allOn = activeCount === grp.units.length;
 
-        const chips = grp.units.map(u => `
-          <button class="unit-chip ${u.fault ? 'fault' : (u.on ? 'on' : '')}"
+        const unitBtns = grp.units.map(u => `
+          <button class="unit-btn ${u.fault ? 'fault' : (u.on ? 'on' : '')}"
                   onclick="handleUnitClick(${project.id}, ${hall.id}, '${gKey}', ${u.num})">
             ${u.num}
           </button>
         `).join('');
 
         return `
-          <div class="smart-card">
-            <div class="smart-card-head">
-              <div class="smart-title">
-                <div class="smart-title-icon">${grp.icon}</div>
+          <div class="group-card">
+            <div class="group-head">
+              <div class="group-title">
+                <div class="group-icon">${grp.icon}</div>
                 <div>
-                  <strong style="font-size:0.95rem; display:block;">${grp.title}</strong>
-                  <small style="color:var(--text-muted); font-size:0.75rem;">چالاک: ${activeCount} لە ${grp.units.length}</small>
+                  <strong style="font-size:0.92rem; display:block;">${grp.title}</strong>
+                  <small style="color:var(--text-muted); font-size:0.74rem;">لە کاردایە: ${activeCount} لە ${grp.units.length}</small>
                 </div>
               </div>
-              <button class="switch-btn ${allOn ? 'all-on' : 'all-off'}"
-                      onclick="toggleEntireGroup(${project.id}, ${hall.id}, '${gKey}', ${!allOn})">
+              <button class="master-switch ${allOn ? 'on' : 'off'}"
+                      onclick="toggleWholeGroup(${project.id}, ${hall.id}, '${gKey}', ${!allOn})">
                 ${allOn ? 'هەمووی ON' : 'هەمووی OFF'}
               </button>
             </div>
-            <div class="unit-chips-wrap">${chips}</div>
-            <div class="card-hint">
-              <span>${state.faultSimMode ? '🔧 دۆخی تاقیکردنەوە: کلیک لە ژمارەیەک بکە بۆ دروستکردنی کێشە' : '💡 پەنجە بنێ بە هەر ژمارەیەکدا بۆ ON / OFF'}</span>
-            </div>
+            <div class="units-wrap">${unitBtns}</div>
           </div>
         `;
       }).join('');
 
       return `
-        <div class="hall-pills-scroll">${hallPills}</div>
+        <div class="hall-nav-row">
+          <div class="hall-pills-wrap">${hallPills}</div>
+          <button class="btn btn-primary" onclick="state.hallMatrixMode=true; render();" title="بینینی هەر ١٠ هۆڵەکە بەیەکەوە">
+            📊 خشتەی ١٠ هۆڵەکە
+          </button>
+        </div>
 
-        <!-- هەستەوەرەکانی ژینگە -->
-        <div class="sensors-row">
-          <div class="sensor-tile ${hall.alarms.temp ? 'alarm' : ''}" onclick="toggleSensorAlarm(${project.id}, ${hall.id}, 'temp')">
-            <small style="color:var(--text-muted);">🌡️ پلەی گەرمی (${hall.name})</small>
-            <div class="val">${hall.temp}°C</div>
-            <small>${hall.alarms.temp ? '⚠️ ئەلارمی گەرمی/ساردی!' : '🟢 ئاساییە (کلیک بۆ تاقیکردنەوە)'}</small>
+        <!-- پانێڵی سەرەکی هۆڵ: جووجکە، سایلۆی هۆڵ، و مۆدی کەشوهەوای زیرەک -->
+        <div class="hall-master-panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:900;">🎛️ ${project.name} • ${hall.name} (${hall.dimensions})</h3>
+              <small style="color:var(--text-muted);">پلەی گەرمی نموونەیی بۆ تەمەنی ${hall.flock.ageDays} ڕۆژ: <strong>${hall.targetTemp}°C</strong></small>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-emerald" onclick="setAllHallUnits(${project.id}, ${hall.id}, true)">هەمووی ON</button>
+              <button class="btn" onclick="setAllHallUnits(${project.id}, ${hall.id}, false)">هەمووی OFF</button>
+            </div>
           </div>
-          <div class="sensor-tile ${hall.alarms.n2 ? 'alarm' : ''}" onclick="toggleSensorAlarm(${project.id}, ${hall.id}, 'n2')">
+
+          <div class="flock-bar">
+            <div class="flock-item">
+              <div><small>🐥 تەمەنی جووجکە</small><strong>${hall.flock.ageDays} ڕۆژ</strong></div>
+              <div style="display:flex; gap:4px;">
+                <button class="btn" style="height:28px; padding:0 8px;" onclick="changeFlockAge(${project.id}, ${hall.id}, 1)">+</button>
+                <button class="btn" style="height:28px; padding:0 8px;" onclick="changeFlockAge(${project.id}, ${hall.id}, -1)">-</button>
+              </div>
+            </div>
+            <div class="flock-item">
+              <div><small>🐔 ژمارەی زیندوو</small><strong>${hall.flock.birdsCount.toLocaleString()}</strong></div>
+              <span style="font-size:0.75rem; color:var(--emerald);">چالاک</span>
+            </div>
+            <div class="flock-item">
+              <div><small>📉 تەلەفاتی ئەمڕۆ</small><strong style="color:var(--danger);">${hall.flock.mortalityToday} دانە</strong></div>
+              <button class="btn btn-danger" style="height:28px; padding:0 8px;" onclick="recordMortality(${project.id}, ${hall.id})">+١ تەلەفات</button>
+            </div>
+            <div class="flock-item">
+              <div><small>🌾 سایلۆی ${hall.name}</small><strong>${hall.silo.tons} تەن (${siloPct}%)</strong></div>
+              <button class="btn" style="height:28px; padding:0 8px;" onclick="refillSilo(${project.id}, ${hall.id})">➕ پڕکردن</button>
+            </div>
+          </div>
+
+          <!-- مۆدە زیرەکەکان (Smart Presets) -->
+          <div class="modes-strip">
+            <span style="font-size:0.78rem; font-weight:800; color:var(--text-muted);">مۆدی زیرەکی هۆڵ:</span>
+            <button class="mode-chip ${hall.climateMode === 'auto' ? 'active' : ''}" onclick="applyClimatePreset(${project.id}, ${hall.id}, 'auto')">
+              🤖 ئۆتۆماتیکی زیرەک
+            </button>
+            <button class="mode-chip ${hall.climateMode === 'summer' ? 'active' : ''}" onclick="applyClimatePreset(${project.id}, ${hall.id}, 'summer')">
+              ❄️ فێنککردنەوەی هاوینە
+            </button>
+            <button class="mode-chip ${hall.climateMode === 'winter' ? 'active' : ''}" onclick="applyClimatePreset(${project.id}, ${hall.id}, 'winter')">
+              🔥 گەرمکردنەوەی زستانە
+            </button>
+            <button class="mode-chip ${hall.climateMode === 'vent' ? 'active' : ''}" onclick="applyClimatePreset(${project.id}, ${hall.id}, 'vent')">
+              🌬️ پاککردنەوەی گاز (پەلە)
+            </button>
+          </div>
+        </div>
+
+        <!-- ٣ هەستەوەرەکەی کەشوهەوا -->
+        <div class="sensors-grid">
+          <div class="sensor-box ${hall.alarms.temp ? 'alarm' : ''}" onclick="toggleSensorAlarm(${project.id}, ${hall.id}, 'temp')">
+            <small style="color:var(--text-muted);">🌡️ ئەلارمی ساردی و گەرمی</small>
+            <div class="val">${hall.temp}°C</div>
+            <small>${hall.alarms.temp ? '⚠️ پلەی گەرمی مەترسیدارە!' : '🟢 گونجاوە (کلیک بۆ تاقیکردنەوە)'}</small>
+          </div>
+          <div class="sensor-box ${hall.alarms.n2 ? 'alarm' : ''}" onclick="toggleSensorAlarm(${project.id}, ${hall.id}, 'n2')">
             <small style="color:var(--text-muted);">🧪 نایترۆجین / ئەمۆنیا (N2)</small>
             <div class="val">${hall.n2} PPM</div>
-            <small>${hall.alarms.n2 ? '⚠️ ڕێژەی گاز بەرزە!' : '🟢 هەوا پاکە'}</small>
+            <small>${hall.alarms.n2 ? '⚠️ ڕێژەی نایترۆجین بەرزە!' : '🟢 هەوا پاکە'}</small>
           </div>
-          <div class="sensor-tile ${hall.alarms.co2 ? 'alarm' : ''}" onclick="toggleSensorAlarm(${project.id}, ${hall.id}, 'co2')">
+          <div class="sensor-box ${hall.alarms.co2 ? 'alarm' : ''}" onclick="toggleSensorAlarm(${project.id}, ${hall.id}, 'co2')">
             <small style="color:var(--text-muted);">☁️ دووانەئۆکسید (CO2)</small>
             <div class="val">${hall.co2} PPM</div>
             <small>${hall.alarms.co2 ? '⚠️ پێویستی بە هەواگۆڕکێیە!' : '🟢 ئاساییە'}</small>
           </div>
         </div>
 
-        <div class="smart-groups-grid">${groupsHtml}</div>
+        <div class="groups-grid">${groupsHtml}</div>
       `;
     }
 
-    function renderPower(project) {
+    function renderHallsMatrixTable(project) {
+      const rows = project.halls.map(h => {
+        const fansOn = h.groups.exhaustFans.units.filter(u => u.on && !u.fault).length;
+        const heatersOn = h.groups.heaters.units.filter(u => u.on && !u.fault).length;
+        const hf = countHallFaults(h);
+        return `
+          <tr>
+            <td><strong>${h.name}</strong></td>
+            <td>${h.flock.ageDays} ڕۆژ (${h.flock.birdsCount.toLocaleString()})</td>
+            <td style="color:${h.alarms.temp ? 'var(--danger)' : 'var(--primary)'}; font-weight:800;">${h.temp}°C</td>
+            <td>N2: ${h.n2} | CO2: ${h.co2}</td>
+            <td>${h.silo.tons} تەن</td>
+            <td>${fansOn}/14 ساحیبە • ${heatersOn}/6 هیتەر</td>
+            <td>${hf > 0 ? `<span style="color:var(--danger); font-weight:800;">⚠️ ${hf} کێشە</span>` : '<span style="color:var(--emerald);">🟢 سەلامەت</span>'}</td>
+            <td><button class="btn btn-primary" style="height:30px;" onclick="state.hallMatrixMode=false; state.hallId=${h.id}; render();">کردنەوە</button></td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="matrix-wrap">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>هۆڵ</th>
+                <th>تەمەن و ژمارەی جووجکە</th>
+                <th>پلەی گەرمی</th>
+                <th>گازەکان (PPM)</th>
+                <th>سایلۆی عەلەف</th>
+                <th>ئامێرە کاراکان</th>
+                <th>دۆخ</th>
+                <th>کۆنتڕۆڵ</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderPowerView(project) {
       const sh = project.shower;
       const gens = project.generators.map((g, idx) => `
-        <div class="smart-card">
-          <div class="smart-card-head">
-            <div class="smart-title">
-              <div class="smart-title-icon">⚡</div>
+        <div class="group-card">
+          <div class="group-head">
+            <div class="group-title">
+              <div class="group-icon">⚡</div>
               <div>
                 <strong>${g.name}</strong>
-                <small style="display:block; color:var(--text-muted);">گازوایل: ${g.fuel}% • دۆخ: ${g.fault ? '⚠️ کێشە' : (g.on ? 'لە کاردایە' : 'کوژاوە')}</small>
+                <small style="display:block; color:var(--text-muted);">گازوایل: ${g.fuel}% • کارکردن: ${g.hours} کاتژمێر</small>
               </div>
             </div>
-            <button class="switch-btn ${g.on ? 'all-on' : 'all-off'}" onclick="toggleGen(${project.id}, ${idx})">
-              ${g.on ? 'ON' : 'OFF'}
+            <button class="master-switch ${g.on ? 'on' : 'off'}" onclick="toggleGen(${project.id}, ${idx})">
+              ${g.on ? 'لە کاردایە (ON)' : 'کوژاوە (OFF)'}
             </button>
           </div>
-          <button class="icon-btn ${g.fault ? 'alarm-fault' : ''}" onclick="toggleGenFault(${project.id}, ${idx})">
-            ${g.fault ? '🔧 چاککردنەوەی کێشەی مۆلیدە' : '⚡ تاقیکردنەوەی ئەلارمی مۆلیدە'}
-          </button>
+          <div style="display:flex; gap:8px;">
+            <button class="btn" style="flex:1;" onclick="project.generators[${idx}].fuel=100; saveState(); render();">⛽ پڕکردنەوەی گازوایل</button>
+            <button class="btn ${g.fault ? 'btn-danger' : ''}" onclick="toggleGenFault(${project.id}, ${idx})">
+              ${g.fault ? '🔧 چاککردنەوە' : '⚠️ تاقیکردنەوەی کێشە'}
+            </button>
+          </div>
         </div>
       `).join('');
 
       return `
-        <div class="smart-groups-grid">
+        <div class="groups-grid">
           ${gens}
-          <div class="smart-card">
-            <div class="smart-card-head">
-              <div class="smart-title">
-                <div class="smart-title-icon">🚿</div>
+          <div class="group-card">
+            <div class="group-head">
+              <div class="group-title">
+                <div class="group-icon">🚿</div>
                 <div>
-                  <strong>حەمامی تەعقیمی دەرگای سەرەکی</strong>
-                  <small style="display:block; color:var(--text-muted);">ماددەی تەعقیم: ${sh.level}% • هاتنەژوورەوەی ئەمڕۆ: ${sh.entries} کەس</small>
+                  <strong>حەمامی تەعقیمی سەرەکی (${project.name})</strong>
+                  <small style="display:block; color:var(--text-muted);">ماددەی تەعقیم: ${sh.level}% • تەعقیمکراوی ئەمڕۆ: ${sh.entries} کەس</small>
                 </div>
               </div>
-              <button class="switch-btn ${sh.on ? 'all-on' : 'all-off'}" onclick="project.shower.on=!project.shower.on; saveState(); render();">
-                ${sh.on ? 'ON' : 'OFF'}
+              <button class="master-switch ${sh.on ? 'on' : 'off'}" onclick="project.shower.on=!project.shower.on; saveState(); render();">
+                ${sh.on ? 'چالاکە (ON)' : 'کوژاوە (OFF)'}
               </button>
             </div>
-            <button class="icon-btn ${sh.fault ? 'alarm-fault' : ''}" onclick="project.shower.fault=!project.shower.fault; saveState(); render();">
-              ${sh.fault ? '🔧 چاککردنەوەی حەمامی تەعقیم' : '⚡ تاقیکردنەوەی ئەلارمی تەعقیم'}
-            </button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn" style="flex:1;" onclick="project.shower.entries++; saveState(); render();">🚶 +١ تۆماری چوونەژوورەوە</button>
+              <button class="btn ${sh.fault ? 'btn-danger' : ''}" onclick="project.shower.fault=!project.shower.fault; if(project.shower.fault) playAlarmBeep(); saveState(); render();">
+                ${sh.fault ? '🔧 چاککردنەوە' : '⚠️ کێشە'}
+              </button>
+            </div>
           </div>
         </div>
       `;
     }
 
-    function renderSilos(project) {
+    function renderSilosView(project) {
       const cards = project.halls.map(h => {
         const s = h.silo;
         const pct = Math.round((s.tons / s.max) * 100);
         return `
-          <div class="silo-mini-card" style="border-color:${s.fault ? 'var(--danger)' : ''}">
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+          <div class="silo-card" style="border-color:${s.fault ? 'var(--danger)' : ''}">
+            <div style="display:flex; justify-content:space-between; font-size:0.84rem;">
               <strong>سایلۆی ${h.name}</strong>
               <span>${s.fault ? '🔴' : '🟢'}</span>
             </div>
-            <div class="silo-bar-wrap">
-              <div class="silo-bar-fill" style="width:${pct}%"></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%"></div>
             </div>
-            <div style="font-size:0.95rem; font-weight:800; margin-bottom:10px;">${s.tons} / ${s.max} تەن (${pct}%)</div>
+            <div style="font-size:0.92rem; font-weight:800; margin-bottom:10px;">${s.tons} / ${s.max} تەن (${pct}%)</div>
             <div style="display:flex; gap:6px;">
-              <button class="icon-btn" style="flex:1;" onclick="refillSilo(${project.id}, ${h.id})">➕ پڕکردنەوە</button>
-              <button class="icon-btn ${s.fault ? 'alarm-fault' : ''}" onclick="toggleSiloFault(${project.id}, ${h.id})">⚠️</button>
+              <button class="btn" style="flex:1;" onclick="refillSilo(${project.id}, ${h.id})">➕ پڕکردن</button>
+              <button class="btn ${s.fault ? 'btn-danger' : ''}" onclick="toggleSiloFault(${project.id}, ${h.id})">⚠️</button>
             </div>
           </div>
         `;
       }).join('');
 
       return `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <h3>🌾 سایلۆکانی عەلەف (${project.name})</h3>
-          <button class="icon-btn" style="background:var(--primary); color:#fff;" onclick="refillAllSilos(${project.id})">➕ پڕکردنەوەی هەمووی</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <h3>🌾 چاودێری هەر ١٠ سایلۆی عەلەف (${project.name})</h3>
+          <button class="btn btn-primary" onclick="refillAllSilos(${project.id})">➕ پڕکردنەوەی هەموو سایلۆکان پێکەوە</button>
         </div>
-        <div class="silos-compact-grid">${cards}</div>
+        <div class="silos-grid">${cards}</div>
       `;
     }
 
-    function renderStaff(project) {
+    function renderStaffView(project) {
       const present = project.staff.filter(s => s.status === 'present').length;
       const absent = project.staff.filter(s => s.status === 'absent').length;
+      const leave = project.staff.filter(s => s.status === 'leave').length;
       const filtered = project.staff.filter(s => s.name.includes(state.staffSearch) || s.role.includes(state.staffSearch));
 
-      const list = filtered.map((s, idx) => `
-        <div class="staff-item-card">
-          <div class="staff-top">
-            <div>
-              <strong style="font-size:0.95rem;">${idx + 1}. ${s.name}</strong>
-              <small style="display:block; color:var(--primary); font-weight:700;">${s.role} • ${s.phone}</small>
+      const cards = filtered.map((s, idx) => {
+        const cleanPhone = s.phone.replace(/\s+/g, '');
+        const waPhone = cleanPhone.startsWith('0') ? '964' + cleanPhone.slice(1) : cleanPhone;
+        return `
+          <div class="staff-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+              <div>
+                <strong style="font-size:0.95rem;">${idx + 1}. ${s.name}</strong>
+                <small style="display:block; color:var(--primary); font-weight:700;">${s.role}</small>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <a href="tel:${cleanPhone}" class="btn" style="height:32px; padding:0 8px;" title="پەیوەندی تەلەفۆنی">📞</a>
+                <a href="https://wa.me/${waPhone}" target="_blank" class="btn btn-emerald" style="height:32px; padding:0 8px;" title="نامەی واتسئەپ">💬</a>
+                <button class="btn" style="height:32px; padding:0 8px;" onclick="openStaffModal(${project.id}, '${s.id}')" title="گۆڕینی ناو">✏️</button>
+              </div>
             </div>
-            <button class="icon-btn" onclick="openStaffModal(${project.id}, '${s.id}')">✏️ ناو</button>
+            <div class="att-row">
+              <button class="att-btn present ${s.status === 'present' ? 'active' : ''}" onclick="setStaffAtt(${project.id}, '${s.id}', 'present')">✅ ئامادە</button>
+              <button class="att-btn absent ${s.status === 'absent' ? 'active' : ''}" onclick="setStaffAtt(${project.id}, '${s.id}', 'absent')">❌ غائب</button>
+              <button class="att-btn leave ${s.status === 'leave' ? 'active' : ''}" onclick="setStaffAtt(${project.id}, '${s.id}', 'leave')">🕒 مۆڵەت</button>
+            </div>
           </div>
-          <div class="att-group">
-            <button class="att-pill present ${s.status === 'present' ? 'active' : ''}" onclick="setStaffAtt(${project.id}, '${s.id}', 'present')">✅ ئامادە</button>
-            <button class="att-pill absent ${s.status === 'absent' ? 'active' : ''}" onclick="setStaffAtt(${project.id}, '${s.id}', 'absent')">❌ غائب</button>
-            <button class="att-pill leave ${s.status === 'leave' ? 'active' : ''}" onclick="setStaffAtt(${project.id}, '${s.id}', 'leave')">🕒 مۆڵەت</button>
-          </div>
+        `;
+      }).join('');
+
+      return `
+        <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
+          <span class="btn btn-emerald">✅ ئامادە: ${present}</span>
+          <span class="btn btn-danger">❌ غائب: ${absent}</span>
+          <span class="btn btn-amber">🕒 مۆڵەت: ${leave}</span>
+          <button class="btn btn-primary" style="margin-right:auto;" onclick="shareStaffReportWhatsApp(${project.id})">📤 ناردنی ڕاپۆرت بۆ واتسئەپ</button>
+          <button class="btn" onclick="markAllPresent(${project.id})">هەمووی ئامادە</button>
+        </div>
+        <input type="text" class="search-input" placeholder="🔍 گەڕان بەدوای ناوی کارمەند یان پیشەکەی..."
+               value="${state.staffSearch}" oninput="state.staffSearch=this.value; render();" />
+        <div class="staff-grid">${cards}</div>
+      `;
+    }
+
+    function renderLogsAndBackupView(project) {
+      const logItems = state.logs.map(l => `
+        <div style="padding:9px 12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.82rem;">
+          <span>${l.text}</span>
+          <small style="color:var(--text-muted); direction:ltr;">${l.time}</small>
         </div>
       `).join('');
 
       return `
-        <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-          <span class="icon-btn alarm-ok">✅ ئامادە: ${present}</span>
-          <span class="icon-btn alarm-fault" style="animation:none;">❌ غائب: ${absent}</span>
-          <button class="icon-btn" style="margin-right:auto;" onclick="markAllPresent(${project.id})">هەمووی ئامادەبوو</button>
+        <div class="groups-grid" style="margin-bottom:16px;">
+          <div class="group-card">
+            <h4>💾 هەڵگرتن و گواستنەوەی داتاکان (Backup & Sync)</h4>
+            <p style="font-size:0.8rem; color:var(--text-muted);">
+              دەتوانیت هەموو گۆڕانکارییەکانی ناو ئەپەکە (ناوی کارمەندان، غیابات، دۆخی ئامێرەکان) وەک فایل دابەزێنیت و لەسەر مۆبایلێکی تر بیکەیتەوە:
+            </p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="exportDataJson()">⬇️ دابەزاندنی فایل (Backup)</button>
+              <label class="btn btn-emerald" style="cursor:pointer;">
+                ⬆️ هێنانەوەی فایل (Import)
+                <input type="file" accept=".json" style="display:none;" onchange="importDataJson(event)" />
+              </label>
+              <button class="btn btn-danger" onclick="resetAllData()">🔄 گەڕاندنەوە بۆ سەرەتا</button>
+            </div>
+          </div>
         </div>
-        <input type="text" class="staff-search-bar" placeholder="🔍 گەڕان بەدوای ناوی کارمەند یان پیشە..."
-               value="${state.staffSearch}" oninput="state.staffSearch=this.value; render();" />
-        <div class="staff-cards-list">${list}</div>
+
+        <div class="group-card">
+          <div class="group-head">
+            <h4>📜 تۆماری ڕووداو و گۆڕانکارییەکان (Activity Log)</h4>
+            <button class="btn" onclick="state.logs=[]; saveState(); render();">پاککردنەوەی تۆمار</button>
+          </div>
+          <div style="max-height:360px; overflow-y:auto;">
+            ${logItems || '<p style="padding:14px; color:var(--text-muted);">هیچ ڕووداوێک تۆمار نەکراوە.</p>'}
+          </div>
+        </div>
       `;
     }
 
-    // کردارەکان
+    // کردارەکان و کۆنتڕۆڵەکان
     function handleUnitClick(pId, hId, gKey, unitNum) {
       const p = state.projects.find(x => x.id === pId);
       const h = p.halls.find(x => x.id === hId);
-      const u = h.groups[gKey].units.find(x => x.num === unitNum);
+      const grp = h.groups[gKey];
+      const u = grp.units.find(x => x.num === unitNum);
 
-      if (state.faultSimMode || u.fault) {
+      if (state.simMode || u.fault) {
         u.fault = !u.fault;
-        if (u.fault) u.on = false;
+        if (u.fault) {
+          u.on = false;
+          playAlarmBeep();
+          addLog(`🚨 کێشە لە ${p.name} - ${h.name} - ${grp.label} (${u.num})`);
+        } else {
+          u.on = true;
+          addLog(`✅ چاککردنەوەی ${p.name} - ${h.name} - ${grp.label} (${u.num})`);
+        }
       } else {
         u.on = !u.on;
+        addLog(`${u.on ? '🟢 ئیشپێکردنی' : '⚪ کوژاندنەوەی'} ${grp.label} (${u.num}) لە ${h.name} (${p.name})`);
       }
       saveState();
       render();
     }
 
-    function toggleEntireGroup(pId, hId, gKey, targetOn) {
+    function toggleWholeGroup(pId, hId, gKey, targetOn) {
       const p = state.projects.find(x => x.id === pId);
       const h = p.halls.find(x => x.id === hId);
-      h.groups[gKey].units.forEach(u => {
-        if (!u.fault) u.on = targetOn;
-      });
+      h.groups[gKey].units.forEach(u => { if (!u.fault) u.on = targetOn; });
+      addLog(`${targetOn ? '🟢 ئیشپێکردنی هەموو' : '⚪ کوژاندنەوەی هەموو'} ${h.groups[gKey].label} لە ${h.name}`);
+      saveState();
+      render();
+    }
+
+    function setAllHallUnits(pId, hId, targetOn) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      Object.values(h.groups).forEach(g => g.units.forEach(u => { if (!u.fault) u.on = targetOn; }));
+      addLog(`${targetOn ? '🟢 ئیشپێکردنی' : '⚪ کوژاندنەوەی'} تەواوی ئامێرەکانی ${h.name} (${p.name})`);
+      saveState();
+      render();
+    }
+
+    function applyClimatePreset(pId, hId, mode) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      h.climateMode = mode;
+
+      if (mode === 'summer') {
+        h.groups.exhaustFans.units.forEach(u => { if (!u.fault) u.on = true; });
+        h.groups.coolingMotors.units.forEach(u => { if (!u.fault) u.on = true; });
+        h.groups.tunnelFans.units.forEach(u => { if (!u.fault) u.on = true; });
+        h.groups.heaters.units.forEach(u => { u.on = false; });
+        h.temp = 23.5;
+      } else if (mode === 'winter') {
+        h.groups.heaters.units.forEach(u => { if (!u.fault) u.on = true; });
+        h.groups.coolingMotors.units.forEach(u => { u.on = false; });
+        h.groups.exhaustFans.units.forEach((u, i) => { if (!u.fault) u.on = i < 4; });
+        h.temp = 28.5;
+      } else if (mode === 'vent') {
+        h.groups.exhaustFans.units.forEach(u => { if (!u.fault) u.on = true; });
+        h.groups.ventWindows.units.forEach(u => { if (!u.fault) u.on = true; });
+        h.n2 = 10;
+        h.co2 = 1600;
+        h.alarms.n2 = false;
+        h.alarms.co2 = false;
+      } else {
+        h.groups.exhaustFans.units.forEach((u, i) => { if (!u.fault) u.on = i < 10; });
+        h.groups.heaters.units.forEach(u => { u.on = false; });
+        h.temp = h.targetTemp;
+      }
+
+      addLog(`🎛️ گۆڕینی مۆدی ${h.name} بۆ (${mode}) لە ${p.name}`);
+      saveState();
+      render();
+    }
+
+    function changeFlockAge(pId, hId, delta) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      h.flock.ageDays = Math.max(1, h.flock.ageDays + delta);
+      h.targetTemp = +(33 - Math.min(h.flock.ageDays * 0.35, 11)).toFixed(1);
+      saveState();
+      render();
+    }
+
+    function recordMortality(pId, hId) {
+      const p = state.projects.find(x => x.id === pId);
+      const h = p.halls.find(x => x.id === hId);
+      h.flock.mortalityToday++;
+      h.flock.birdsCount = Math.max(0, h.flock.birdsCount - 1);
+      addLog(`📉 تۆمارکردنی ١ تەلەفات لە ${h.name} (${p.name})`);
       saveState();
       render();
     }
@@ -1166,9 +1582,10 @@
       const p = state.projects.find(x => x.id === pId);
       const h = p.halls.find(x => x.id === hId);
       h.alarms[key] = !h.alarms[key];
-      if (key === 'temp') h.temp = h.alarms.temp ? 34.5 : 24.8;
-      if (key === 'n2') h.n2 = h.alarms.n2 ? 48 : 13;
-      if (key === 'co2') h.co2 = h.alarms.co2 ? 4200 : 1900;
+      if (key === 'temp') h.temp = h.alarms.temp ? 35.2 : h.targetTemp;
+      if (key === 'n2') h.n2 = h.alarms.n2 ? 48 : 12;
+      if (key === 'co2') h.co2 = h.alarms.co2 ? 4400 : 1850;
+      if (h.alarms[key]) playAlarmBeep();
       saveState();
       render();
     }
@@ -1176,14 +1593,19 @@
     function toggleGen(pId, idx) {
       const p = state.projects.find(x => x.id === pId);
       p.generators[idx].on = !p.generators[idx].on;
+      addLog(`⚡ مۆلیدەی (${idx + 1}) لە ${p.name} کرا بە ${p.generators[idx].on ? 'ON' : 'OFF'}`);
       saveState();
       render();
     }
 
     function toggleGenFault(pId, idx) {
       const p = state.projects.find(x => x.id === pId);
-      p.generators[idx].fault = !p.generators[idx].fault;
-      if (p.generators[idx].fault) p.generators[idx].on = false;
+      const g = p.generators[idx];
+      g.fault = !g.fault;
+      if (g.fault) {
+        g.on = false;
+        playAlarmBeep();
+      }
       saveState();
       render();
     }
@@ -1193,6 +1615,7 @@
       const h = p.halls.find(x => x.id === hId);
       h.silo.tons = h.silo.max;
       h.silo.fault = false;
+      addLog(`🌾 پڕکردنەوەی سایلۆی ${h.name} لە ${p.name} (٢٥ تەن)`);
       saveState();
       render();
     }
@@ -1200,6 +1623,7 @@
     function refillAllSilos(pId) {
       const p = state.projects.find(x => x.id === pId);
       p.halls.forEach(h => { h.silo.tons = h.silo.max; h.silo.fault = false; });
+      addLog(`🌾 پڕکردنەوەی هەموو سایلۆکانی ${p.name}`);
       saveState();
       render();
     }
@@ -1208,6 +1632,7 @@
       const p = state.projects.find(x => x.id === pId);
       const h = p.halls.find(x => x.id === hId);
       h.silo.fault = !h.silo.fault;
+      if (h.silo.fault) playAlarmBeep();
       saveState();
       render();
     }
@@ -1216,6 +1641,7 @@
       const p = state.projects.find(x => x.id === pId);
       const s = p.staff.find(x => x.id === sId);
       s.status = status;
+      addLog(`👤 تۆماری غیابات: ${s.name} (${status}) لە ${p.name}`);
       saveState();
       render();
     }
@@ -1227,28 +1653,38 @@
       render();
     }
 
-    let editingStaff = null;
+    function shareStaffReportWhatsApp(pId) {
+      const p = state.projects.find(x => x.id === pId);
+      const present = p.staff.filter(s => s.status === 'present').length;
+      const absents = p.staff.filter(s => s.status === 'absent').map(s => s.name).join('، ') || 'نییە';
+      const leaves = p.staff.filter(s => s.status === 'leave').map(s => s.name).join('، ') || 'نییە';
+      const text = `📊 ڕاپۆرتی ستافی ${p.name}\n✅ ئامادەبووان: ${present} لە 25\n❌ نەهاتوو (غائب): ${absents}\n🕒 مۆڵەت: ${leaves}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    let editingStaffCtx = null;
     function openStaffModal(pId, sId) {
       const p = state.projects.find(x => x.id === pId);
       const s = p.staff.find(x => x.id === sId);
-      editingStaff = { pId, sId };
-      document.getElementById('staffNameInput').value = s.name;
-      document.getElementById('staffPhoneInput').value = s.phone;
+      editingStaffCtx = { pId, sId };
+      document.getElementById('staffNameInp').value = s.name;
+      document.getElementById('staffPhoneInp').value = s.phone;
       document.getElementById('staffModal').classList.add('open');
     }
 
     function closeStaffModal() {
       document.getElementById('staffModal').classList.remove('open');
-      editingStaff = null;
+      editingStaffCtx = null;
     }
 
     function saveStaffModal() {
-      if (!editingStaff) return;
-      const p = state.projects.find(x => x.id === editingStaff.pId);
-      const s = p.staff.find(x => x.id === editingStaff.sId);
-      const newName = document.getElementById('staffNameInput').value.trim();
+      if (!editingStaffCtx) return;
+      const p = state.projects.find(x => x.id === editingStaffCtx.pId);
+      const s = p.staff.find(x => x.id === editingStaffCtx.sId);
+      const newName = document.getElementById('staffNameInp').value.trim();
       if (newName) s.name = newName;
-      s.phone = document.getElementById('staffPhoneInput').value.trim();
+      s.phone = document.getElementById('staffPhoneInp').value.trim();
+      addLog(`✏️ گۆڕینی زانیاری کارمەند بۆ: ${s.name}`);
       saveState();
       closeStaffModal();
       render();
@@ -1256,17 +1692,17 @@
 
     function openFaultsModal() {
       const faults = getAllFaults();
-      const box = document.getElementById('faultsModalContent');
+      const box = document.getElementById('faultsListBox');
       if (faults.length === 0) {
-        box.innerHTML = `<p style="text-align:center; padding:18px; color:var(--emerald);">هیچ کێشەیەک لە سیستەمەکەدا نییە!</p>`;
+        box.innerHTML = `<p style="text-align:center; padding:18px; color:var(--emerald);">هیچ کێشەیەک لە هیچ کام لە ٨ پڕۆژەکەدا نییە!</p>`;
       } else {
         box.innerHTML = faults.map(f => `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg-card); border-radius:10px; margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg-card); border:1px solid var(--danger); border-radius:10px; margin-bottom:8px;">
             <div>
               <strong>${f.pName}</strong>
               <small style="display:block; color:var(--danger);">${f.text}</small>
             </div>
-            <button class="icon-btn" onclick="closeFaultsModal(); openProject(${f.pId}, '${f.tab}', ${f.hId || 1});">چوون</button>
+            <button class="btn btn-primary" onclick="closeFaultsModal(); openProject(${f.pId}, '${f.tab}', ${f.hId || 1});">چوون</button>
           </div>
         `).join('');
       }
@@ -1283,15 +1719,56 @@
         p.generators.forEach(g => g.fault = false);
         p.halls.forEach(h => {
           h.alarms = { temp: false, n2: false, co2: false };
+          h.temp = h.targetTemp;
           h.silo.fault = false;
           Object.values(h.groups).forEach(grp => grp.units.forEach(u => {
             if (u.fault) { u.fault = false; u.on = true; }
           }));
         });
       });
+      addLog('✅ هەموو ئەلارم و کێشەکانی سیستەم چاککرانەوە.');
       saveState();
       closeFaultsModal();
       render();
+    }
+
+    function exportDataJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ projects: state.projects, logs: state.logs }));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "scada_poultry_backup.json");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importDataJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.projects) {
+            state.projects = parsed.projects;
+            state.logs = parsed.logs || [];
+            saveState();
+            render();
+            alert('داتاکان بە سەرکەوتوویی گەڕێندرانەوە!');
+          }
+        } catch (err) {
+          alert('فایلەکە دروست نییە!');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAllData() {
+      if (confirm('دڵنیایت دەتەوێت هەموو داتاکان بگەڕێنیتەوە سەر دۆخی سەرەتا؟')) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadState();
+        render();
+      }
     }
 
     loadState();
